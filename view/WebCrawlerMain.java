@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import model.Constants;
 import model.Graph;
 import model.Vertex;
 import util.ButtonUtils;
@@ -46,7 +47,7 @@ import controller.StatisticsThread;
  */
 
 public class WebCrawlerMain {
-	private static ExecutorService executor = null; // Here, define some nice way of using a thread pool
+	private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
 	private static Graph internetModel = new Graph();
 	private static DatabaseThread databaseThread= new DatabaseThread(internetModel);
 	public static final int DEFAULT_WIDTH = 700;
@@ -59,12 +60,19 @@ public class WebCrawlerMain {
 	public WebCrawlerMain() {
 		// Here, create a new Runnable to insert into the EventQueue
 		// The Runnable should create the actual frame and set it to visible
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				
-			}
-		});
+        try {
+            startCrawling();
+            stopCrawling();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//
+//			}
+//		});
 	}
 	
 	public void stopRequest() throws FileNotFoundException, UnsupportedEncodingException {
@@ -78,7 +86,10 @@ public class WebCrawlerMain {
 		
 				
 		// If there's already work in the queue, read it and start it as well. Otherwise, use some default site
-		// A nice one to use is as newspaper, for example http://www.trouw.nl 
+		// A nice one to use is as newspaper, for example http://www.trouw.nl
+        EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, new Vertex(Constants.DEFAULT_START), executor,databaseThread);
+        executor.execute(edgeSeeker);
+
 	}
 	
 	public boolean readWorkAtHand() throws Exception  {	
@@ -114,8 +125,9 @@ public class WebCrawlerMain {
 		// (check the API of Executors to see how) and store them in a file for restarting them
 		//
 		// After that, write the graph to a file and exit the whole application
-		internetModel.writeGraph();
-		databaseThread.writeAllWorkAtHand();
+        executor.shutdown();
+//		internetModel.writeGraph();
+//		databaseThread.writeAllWorkAtHand();
 
 	}
 	
