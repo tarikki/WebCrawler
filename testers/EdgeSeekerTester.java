@@ -15,19 +15,20 @@ import java.util.concurrent.Executors;
  * Created by extradikke on 4-11-14.
  */
 public class EdgeSeekerTester {
-    private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
+    private static ExecutorService executor = Executors.newFixedThreadPool(10); // Here, define some nice way of using a thread pool
     private static Graph internetModel = new Graph();
-    private static DatabaseThread databaseThread= new DatabaseThread(internetModel);
+    private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
 
     public static void main(String[] args) {
         EdgeSeeker edgeSeeker = null;
         try {
-            edgeSeeker = new EdgeSeeker(internetModel, new Vertex(Constants.DEFAULT_START), executor,databaseThread);
-        } catch (VertexUnreachableException e) {
+            Vertex startVertex = new Vertex(Constants.DEFAULT_START);
+            internetModel.addVertex(startVertex);
+            edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
+            executor.execute(edgeSeeker);
+        } catch (VertexUnreachableException | VertexInvalidException e) {
             e.printStackTrace();
-        } catch (VertexInvalidException e) {
-            e.printStackTrace();
-        }
-        executor.execute(edgeSeeker);
+
+
     }
-}
+}}
