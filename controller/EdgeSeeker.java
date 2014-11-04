@@ -57,8 +57,11 @@ public class EdgeSeeker  implements Runnable {
 	@Override
 	public void run() {
 		// The core code goes here. Make it work!
-		
-		// Loop through all anchors found 
+		ArrayList<String> anchors = URLUtil.getAnchors(source);
+        for (String anchor : anchors) {
+
+        }
+        // Loop through all anchors found
 		
 			// Create the vertex. If this fails, do nothing with it. Otherwise, add the edge
 
