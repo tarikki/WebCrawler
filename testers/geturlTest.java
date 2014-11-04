@@ -9,10 +9,10 @@ import java.io.IOException;
  */
 public class geturlTest {
     public static void main(String[] args) {
-        try {
-            URLUtil.getURLContent("http://www.mkyong.com/java/how-to-send-http-request-getpost-in-java/");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+////            URLUtil.getURLContent("http://www.mkyong.com/java/how-to-send-http-request-getpost-in-java/");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }

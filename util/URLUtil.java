@@ -9,9 +9,7 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.regex.*;
 
@@ -26,6 +24,8 @@ public class URLUtil {
     //    private static Pattern pattern = Pattern.compile("(?<=\\.)\\w*$");
 //    private static Pattern hrefPattern = Pattern.compile("(?<=<a href=\").*(?=\")");
     private static Pattern hrefPattern = Pattern.compile("a href=\"(.*?)\"");
+
+
 
     /**
      * This method is used to normalize a URL. In order to do this, the following steps are taken:
@@ -105,14 +105,16 @@ public class URLUtil {
 
 
     public static boolean isReachableURL(String anURL) throws IOException {
-
+        System.out.println(anURL);
         HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
         connection.setRequestMethod("GET");
-        connection.setConnectTimeout(3000); //// Set timeout to 3s (may be too long?)
+        connection.setConnectTimeout(5000); //// Set timeout to 3s (may be too long?)
         if (connection.getResponseCode() != 200) /// If response code is other than 200 -> website is unreachable
+
         {
 
-            System.out.println("IT IS LE FUCKED");
+            System.out.println(anURL + " IS LE FUCKED");
+
             return false;
         } else {
             System.out.println("IT WORKS!!!!");

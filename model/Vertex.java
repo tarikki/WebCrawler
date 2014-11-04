@@ -17,6 +17,9 @@ public class Vertex implements Comparable<Vertex> {
     private int numberOfEdges = 0;
 
     public Vertex(String name) throws VertexUnreachableException, VertexInvalidException {
+
+        this.name = name;
+
         // Some protocol is necessary. If there's none, add http as the default.
 
         // Now check for mailto, as we do not want these as a valid vertex
@@ -92,10 +95,7 @@ public class Vertex implements Comparable<Vertex> {
 
     @Override
 
-    public int compareTo(Vertex other) {
-
-            System.out.println("dikkeekeke~!!");
-            System.out.println(other);
+    public int compareTo(@NotNull Vertex other) {
             return this.toString().compareTo(other.toString());
         }
     }

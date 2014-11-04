@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -60,12 +61,15 @@ public class EdgeSeeker implements Runnable {
     public void run() {
         // The core code goes here. Make it work!
         ArrayList<String> anchors = null;
+        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
         try {
             System.out.println(source.getName());
             anchors = URLUtil.getAnchors(source.getName());
             for (String anchor : anchors) {
-                boolean validAddress = URLUtil.isReachableURL(anchor);
+                String cleanAnchor = URLUtil.stripURL(anchor);
+                boolean validAddress = URLUtil.isReachableURL(cleanAnchor);
                 if (validAddress) {
+                    System.out.println("Adding " + anchor);
                     Vertex newVertex = new Vertex(anchor);
                     internetModel.addVertex(newVertex);
                     internetModel.addEdge(source, newVertex);
