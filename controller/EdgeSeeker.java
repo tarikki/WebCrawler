@@ -61,6 +61,7 @@ public class EdgeSeeker implements Runnable {
         // The core code goes here. Make it work!
         ArrayList<String> anchors = null;
         try {
+            System.out.println(source.getName());
             anchors = URLUtil.getAnchors(source.getName());
             for (String anchor : anchors) {
                 boolean validAddress = URLUtil.isReachableURL(anchor);
