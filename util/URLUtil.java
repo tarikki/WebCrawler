@@ -1,6 +1,7 @@
 package util;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -69,22 +70,41 @@ public class URLUtil {
 	 * @param anURL anURL the String representation of the URL to check for
 	 * @return boolean true if a connection could be established, false otherwise
 	 */
+
+
 	
-	public static boolean isReachableURL(String anURL) {
-		return true;
-	}
-	
-	/**
-	 * This method connects to a given URL and retrieves the webpage behind it. It assumes an URL is 
-	 * reachable; if not, it throws an Exception
-	 * The method also keeps track of the amount of data retrieved using the StatisticsCallback interface
-	 * 
-	 * @param anURL anURL the String representation of the URL to be retrieved
-	 * @param callback callback the object to tell how many bytes were retrieved
-	 * @return String the retrieved webpage as one String
-	 * @throws IOException if anything goes wrong retrieving the page
-	 */
-	
+
+
+
+    public static boolean isReachableURL(String anURL) throws IOException {
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(3000); //// Set timeout to 3s (may be too long?)
+        if (connection.getResponseCode() != 200) /// If response code is other than 200 -> website is unreachable
+        {
+
+            System.out.println("IT IS LE FUCKED");
+            return false;
+        } else {
+            System.out.println("IT WORKS!!!!");
+            return true;
+
+        }
+    }
+
+
+    /**
+     * This method connects to a given URL and retrieves the webpage behind it. It assumes an URL is
+     * reachable; if not, it throws an Exception
+     * The method also keeps track of the amount of data retrieved using the StatisticsCallback interface
+     *
+     * @param anURL anURL the String representation of the URL to be retrieved
+     * @param callback callback the object to tell how many bytes were retrieved
+     * @return String the retrieved webpage as one String
+     * @throws IOException if anything goes wrong retrieving the page
+     */
+
 	public static String getURLContent(String anURL, StatisticsCallback callback) throws IOException {
 		return null;
 	}
