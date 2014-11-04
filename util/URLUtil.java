@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.regex.*;
 
 /**
  * An utility class used to process URL's.
@@ -13,6 +14,9 @@ import java.util.ArrayList;
  */
 
 public class URLUtil {
+
+//    private static Pattern pattern = Pattern.compile("(?<=\\.)\\w*$");
+
 	/**
 	 * This method is used to normalize a URL. In order to do this, the following steps are taken:
 	 * - Strip all parameters from the URL
@@ -26,6 +30,12 @@ public class URLUtil {
 	 */
 	public static String stripURL(String name) {
 
+
+//        Matcher match = pattern.matcher(name);
+//        if (match.find()){
+//            System.out.println("taddaaa "+match.group());
+//            name = name.replace(("."+match.group()), "");
+//        }
         URL aURL = null;
         try {
             aURL = new URL(name);
@@ -33,16 +43,18 @@ public class URLUtil {
             e.printStackTrace();
         }
         String protocol = aURL.getProtocol();
-        String authority = aURL.getAuthority();
-//        String host = aURL.
-        System.out.println("protocol = " + aURL.getProtocol());
-        System.out.println("authority = " + aURL.getAuthority());
-        System.out.println("host = " + aURL.getHost());
-        System.out.println("port = " + aURL.getPort());
-        System.out.println("path = " + aURL.getPath());
-        System.out.println("query = " + aURL.getQuery());
-        System.out.println("filename = " + aURL.getFile());
-        System.out.println("ref = " + aURL.getRef());
+
+        String host = aURL.getHost();
+        String path = aURL.getPath();
+
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(protocol);
+        stringBuilder.append("://");
+        stringBuilder.append(host);
+        stringBuilder.append(path);
+        System.out.println(stringBuilder.toString());
+
         return null;
     }
 
