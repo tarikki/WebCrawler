@@ -1,6 +1,8 @@
 package util;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -19,18 +21,40 @@ public class URLUtil {
 	 * - Strip any remaing / sign at the end of the URL
 	 * - Make sure the remaining URL does not start or end with a space
 	 * 
-	 * @param String name the String representation of the URL
+	 * @param name the String representation of the URL
 	 * @return String the stripped URL
 	 */
 	public static String stripURL(String name) {
-		return null;
-	}
+
+        URL aURL = null;
+        try {
+            aURL = new URL(name);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        String protocol = aURL.getProtocol();
+        String authority = aURL.getAuthority();
+//        String host = aURL.
+        System.out.println("protocol = " + aURL.getProtocol());
+        System.out.println("authority = " + aURL.getAuthority());
+        System.out.println("host = " + aURL.getHost());
+        System.out.println("port = " + aURL.getPort());
+        System.out.println("path = " + aURL.getPath());
+        System.out.println("query = " + aURL.getQuery());
+        System.out.println("filename = " + aURL.getFile());
+        System.out.println("ref = " + aURL.getRef());
+        return null;
+    }
+
+
+
+
 	
 	/**
 	 * Checks whether a given URL is actually reachable (i.e. whether a connection can be established)
 	 * If an URL could not be reached, just return false, do not throw any Exception here
 	 * 
-	 * @param String anURL the String representation of the URL to check for
+	 * @param anURL anURL the String representation of the URL to check for
 	 * @return boolean true if a connection could be established, false otherwise
 	 */
 	
@@ -43,8 +67,8 @@ public class URLUtil {
 	 * reachable; if not, it throws an Exception
 	 * The method also keeps track of the amount of data retrieved using the StatisticsCallback interface
 	 * 
-	 * @param String anURL the String representation of the URL to be retrieved
-	 * @param StatisticsCallback callback the object to tell how many bytes were retrieved
+	 * @param anURL anURL the String representation of the URL to be retrieved
+	 * @param callback callback the object to tell how many bytes were retrieved
 	 * @return String the retrieved webpage as one String
 	 * @throws IOException if anything goes wrong retrieving the page
 	 */
@@ -59,8 +83,8 @@ public class URLUtil {
 	 * following. 
 	 * If anything goes wrong reading the URL itself: see comments in the source code given
 	 * 
-	 * @param String anURL the String representation of the URL to be retrieved
-	 * @param StatisticsCallback callback the object to tell how many bytes were retrieved
+	 * @param anURL anURL the String representation of the URL to be retrieved
+	 * @param callback callback the object to tell how many bytes were retrieved
 	 * @return A List containing the anchors found
 	 */
 	
