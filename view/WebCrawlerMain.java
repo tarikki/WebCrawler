@@ -8,15 +8,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import model.Constants;
@@ -208,10 +207,21 @@ public class WebCrawlerMain {
 
 
             String[] columnNames = {"#", "Degree", "URL"}; /// WIll be used to name columns later with arraylist & columnNames
-
-
-            vertexList = new JTable(3, 3); /// Make a table with 3 rows & 5 columns (SHOULD BE DYNAMIC!!!)
+            ArrayList<String> dikkepaska = new ArrayList<String>();
+            String a = "apina";
+            String b = "banaani";
+            String c = "corolla";
+            Collections.addAll(dikkepaska, a,b,c);
+            vertexList = new JTable(new DefaultTableModel(0,0));
+            DefaultTableModel model = (DefaultTableModel) vertexList.getModel();
             vertexList.setVisible(true);
+
+            /// Column names (first row) find better implementation and try with scrollpane.
+            model.addColumn("#");
+            model.addColumn("Degree");
+            model.addColumn("URL");
+            model.addRow(columnNames);
+            model.addRow(dikkepaska.toArray());
 
 
             ///vertexList.setLayout(new GridLayout(5,5));
