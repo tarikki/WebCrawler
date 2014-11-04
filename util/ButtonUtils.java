@@ -22,5 +22,7 @@ public class ButtonUtils {
 		JButton button = new JButton(title);
 		c.add(button);
 		button.addActionListener(listener);
+
+
 	}
 }

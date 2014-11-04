@@ -54,7 +54,7 @@ public class URLUtil {
         stringBuilder.append("://");
         stringBuilder.append(host);
         stringBuilder.append(path);
-        System.out.println(stringBuilder.toString());
+        System.out.println(stringBuilder);
 
         return null;
     }

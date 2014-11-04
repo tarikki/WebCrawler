@@ -63,7 +63,7 @@ public class TablePacker{
     public void pack(JTable table){
         if(!table.isShowing())
             throw new IllegalStateException("table must be showing to pack");
-        
+
         if(table.getColumnCount()==0)
             return;
         
