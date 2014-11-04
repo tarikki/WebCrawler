@@ -17,8 +17,9 @@ import java.util.regex.*;
 
 /**
  * An utility class used to process URL's.
- *
+ * 
  * @author harald.drillenburg
+ *
  */
 
 public class URLUtil {
@@ -27,18 +28,18 @@ public class URLUtil {
 //    private static Pattern hrefPattern = Pattern.compile("(?<=<a href=\").*(?=\")");
     private static Pattern hrefPattern = Pattern.compile("a href=\"(.*?)\"");
 
-    /**
-     * This method is used to normalize a URL. In order to do this, the following steps are taken:
-     * - Strip all parameters from the URL
-     * - Strip signs like ; and # at the end of the URL
-     * - Strip all file extensions
-     * - Strip any remaing / sign at the end of the URL
-     * - Make sure the remaining URL does not start or end with a space
-     *
-     * @param name the String representation of the URL
-     * @return String the stripped URL
-     */
-    public static String stripURL(String name) {
+	/**
+	 * This method is used to normalize a URL. In order to do this, the following steps are taken:
+	 * - Strip all parameters from the URL
+	 * - Strip signs like ; and # at the end of the URL
+	 * - Strip all file extensions
+	 * - Strip any remaing / sign at the end of the URL
+	 * - Make sure the remaining URL does not start or end with a space
+	 * 
+	 * @param name the String representation of the URL
+	 * @return String the stripped URL
+	 */
+	public static String stripURL(String name) {
 
 
 //        Matcher match = pattern.matcher(name);
@@ -62,7 +63,6 @@ public class URLUtil {
         stringBuilder.append(protocol);
         stringBuilder.append("://");
         stringBuilder.append(host);
-
         stringBuilder.append(path);
         System.out.println(stringBuilder.toString());
 
@@ -80,6 +80,48 @@ public class URLUtil {
     public static boolean isReachableURL(String anURL) {
         return true;
     }
+
+    /**
+     * This method connects to a given URL and retrieves the webpage behind it. It assumes an URL is
+     * reachable; if not, it throws an Exception
+     * The method also keeps track of the amount of data retrieved using the StatisticsCallback interface
+     *
+     * @param anURL anURL the String representation of the URL to be retrieved
+     * @return String the retrieved webpage as one String
+     * @throws IOException if anything goes wrong retrieving the page
+     */
+
+	
+	/**
+	 * Checks whether a given URL is actually reachable (i.e. whether a connection can be established)
+	 * If an URL could not be reached, just return false, do not throw any Exception here
+	 * 
+	 * @param anURL anURL the String representation of the URL to check for
+	 * @return boolean true if a connection could be established, false otherwise
+	 */
+
+
+	
+
+
+
+    public static boolean isReachableURL(String anURL) throws IOException {
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(3000); //// Set timeout to 3s (may be too long?)
+        if (connection.getResponseCode() != 200) /// If response code is other than 200 -> website is unreachable
+        {
+
+            System.out.println("IT IS LE FUCKED");
+            return false;
+        } else {
+            System.out.println("IT WORKS!!!!");
+            return true;
+
+        }
+    }
+
 
     /**
      * This method connects to a given URL and retrieves the webpage behind it. It assumes an URL is
@@ -143,5 +185,4 @@ public class URLUtil {
         // For now, do nothing
 
         return result;
-    }
 }
