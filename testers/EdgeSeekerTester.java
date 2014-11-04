@@ -23,6 +23,7 @@ public class EdgeSeekerTester {
         EdgeSeeker edgeSeeker = null;
         try {
             Vertex startVertex = new Vertex(Constants.DEFAULT_START);
+            System.out.println(Constants.DEFAULT_START);
             internetModel.addVertex(startVertex);
             edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
             executor.execute(edgeSeeker);

@@ -168,7 +168,7 @@ public class URLUtil {
         //TODO put the statistic callback back in the this method
         ArrayList<String> result = new ArrayList<String>();
 
-
+        System.out.println(anURL);
         Document document = Jsoup.connect(anURL).get();
 //        Document document = Jsoup.parse(content, "http://www.regexplanet.com/");
         Elements elements = document.select("a[href]");
