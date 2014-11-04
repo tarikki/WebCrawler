@@ -12,7 +12,7 @@ public class ContentTester {
 
     public static void main(String[] args) {
         try {
-            ArrayList<String> result = URLUtil.getAnchors("http://www.regexplanet.com/advanced/java/index.html");
+            ArrayList<String> result = URLUtil.getAnchors("http://hs.fi");
             for (String url : result) {
                 URLUtil.stripURL(url);
             }
