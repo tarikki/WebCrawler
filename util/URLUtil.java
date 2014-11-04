@@ -39,24 +39,31 @@ public class URLUtil {
      * @return String the stripped URL
      */
     public static String stripURL(String name) {
-
+        String protocol;
+        String host;
+        String path;
 
 //        Matcher match = pattern.matcher(name);
 //        if (match.find()){
 //            System.out.println("taddaaa "+match.group());
 //            name = name.replace(("."+match.group()), "");
 //        }
+
+
         URL aURL = null;
         try {
             aURL = new URL(name);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        String protocol = aURL.getProtocol();
+        if (aURL.getProtocol() != null) {
+            protocol = aURL.getProtocol();
+        } else {
+            protocol = "http";
+        }
 
-        String host = aURL.getHost();
-        String path = aURL.getPath();
-
+        host = aURL.getHost();
+        path = aURL.getPath();
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(protocol);
