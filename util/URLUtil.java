@@ -52,6 +52,7 @@ public class URLUtil {
 
         URL aURL = null;
         try {
+//            System.out.println(name.length());
             aURL = new URL(name);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -70,9 +71,10 @@ public class URLUtil {
         stringBuilder.append("://");
         stringBuilder.append(host);
         stringBuilder.append(path);
-        System.out.println(stringBuilder);
+//        System.out.println(stringBuilder);
 
-        return null;
+
+        return stringBuilder.toString();
     }
 
     /**
@@ -105,7 +107,7 @@ public class URLUtil {
 
 
     public static boolean isReachableURL(String anURL) throws IOException {
-        System.out.println(anURL);
+//        System.out.println(anURL);
         HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
         connection.setRequestMethod("GET");
         connection.setConnectTimeout(5000); //// Set timeout to 3s (may be too long?)
@@ -117,7 +119,7 @@ public class URLUtil {
 
             return false;
         } else {
-            System.out.println("IT WORKS!!!!");
+//            System.out.println("IT WORKS!!!!");
             return true;
 
         }
@@ -140,7 +142,7 @@ public class URLUtil {
         HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
         con.setRequestMethod("GET");
         int responseCode = con.getResponseCode();
-        System.out.println("Response " + responseCode);
+//        System.out.println("Response " + responseCode);
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
         StringBuffer response = new StringBuffer();
@@ -170,13 +172,14 @@ public class URLUtil {
         //TODO put the statistic callback back in the this method
         ArrayList<String> result = new ArrayList<String>();
 
-        System.out.println(anURL);
+//        System.out.println(anURL);
         Document document = Jsoup.connect(anURL).get();
 //        Document document = Jsoup.parse(content, "http://www.regexplanet.com/");
         Elements elements = document.select("a[href]");
+        System.out.println("Links on page: "+elements.size());
         for (Element element : elements) {
-            result.add(element.attr("abs:href"));
-            System.out.println(element.attr("abs:href"));
+            if (element.attr("abs:href")!=null) result.add(element.attr("abs:href"));
+//            System.out.println(element.attr("abs:href"));
 
         }
 

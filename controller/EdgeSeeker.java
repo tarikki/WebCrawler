@@ -22,10 +22,10 @@ import util.VertexUnreachableException;
  * - Then offers new threads in the pool, one for each anchor found
  * - And of course it should add a Vertex for every new URL found, and an Edge to reflect
  * the anchor.
- * <p/>
+ * <p>
  * Remember, a Graph uses a list of unique Vertices, so adding an already existing vertex
  * should not cause duplicates. But neither should it throw exceptions
- * <p/>
+ * <p>
  * The thread should also do some optimization by not offering vertices already under
  * examination. Several mechanisms could be used for this. Here, I used a Set to keep
  * track of Vertices already offered for examination. Not the most efficient solution,
@@ -69,10 +69,17 @@ public class EdgeSeeker implements Runnable {
                 String cleanAnchor = URLUtil.stripURL(anchor);
                 boolean validAddress = URLUtil.isReachableURL(cleanAnchor);
                 if (validAddress) {
-                    System.out.println("Adding " + anchor);
-                    Vertex newVertex = new Vertex(anchor);
-                    internetModel.addVertex(newVertex);
-                    internetModel.addEdge(source, newVertex);
+                    Vertex newVertex = new Vertex(cleanAnchor);
+                    if (!alreadyUnderExamination.contains(newVertex)) {
+                        System.out.println("Adding " + cleanAnchor);
+                        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
+                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
+                        internetModel.addVertex(newVertex);
+                        internetModel.addEdge(source, newVertex);
+                        EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
+                        alreadyUnderExamination.add(newVertex);
+                        executor.execute(edgeSeeker);
+                    }
                 }
             }
         } catch (IOException | VertexInvalidException | VertexUnreachableException e) {
@@ -80,11 +87,6 @@ public class EdgeSeeker implements Runnable {
         }
 
 
-        // Loop through all anchors found
 
-        // Create the vertex. If this fails, do nothing with it. Otherwise, add the edge
-
-
-        // Now the magic follows. For each successfully added target, start another thread to examine it.
     }
 }
