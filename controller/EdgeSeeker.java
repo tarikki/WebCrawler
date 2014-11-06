@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 
 import model.Graph;
 import model.Vertex;
+import util.MemoryUtil;
 import util.URLUtil;
 import util.VertexInvalidException;
 import util.VertexUnreachableException;
@@ -62,18 +63,20 @@ public class EdgeSeeker implements Runnable {
         // The core code goes here. Make it work!
         ArrayList<String> anchors = null;
         System.out.println("Vertices: " + internetModel.getNumberOfVertices());
+        System.out.println("Edges: " + internetModel.getNumberOfEdges());
+        System.out.println("Bandwidth used: " + MemoryUtil.readableFileSize((internetModel.getBandwidthUsed())));
         try {
             System.out.println(source.getName());
-            anchors = URLUtil.getAnchors(source.getName());
+            anchors = URLUtil.getAnchors(source.getName(), internetModel);
             for (String anchor : anchors) {
                 String cleanAnchor = URLUtil.stripURL(anchor);
                 boolean validAddress = URLUtil.isReachableURL(cleanAnchor);
                 if (validAddress) {
                     Vertex newVertex = new Vertex(cleanAnchor);
                     if (!alreadyUnderExamination.contains(newVertex)) {
-                        System.out.println("Adding " + cleanAnchor);
-                        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
-                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
+//                        System.out.println("Adding " + cleanAnchor);
+//                        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
+//                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
                         internetModel.addVertex(newVertex);
                         internetModel.addEdge(source, newVertex);
                         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
