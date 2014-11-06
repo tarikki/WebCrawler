@@ -137,13 +137,12 @@ public class WebCrawlerMain {
 
     }
 
-    public void copyInfo(){
+    public void copyInfo() {
         showingList = internetModel.copyShowingList();
         ratioNumber = Float.toString(internetModel.getRatioEV());
         verticesNumber = Integer.toString(internetModel.getNumberOfVertices());
         edgesNumber = Integer.toString(internetModel.getNumberOfEdges());
     }
-
 
 
     class VerticesFrame extends JFrame {
@@ -154,6 +153,7 @@ public class WebCrawlerMain {
 
         public VerticesFrame() {
             // Create the frame, add the right panel. Use a BorderLayout. Set the title.
+
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
@@ -165,15 +165,16 @@ public class WebCrawlerMain {
             statisticsPanel.setVisible(true);
             this.add(statisticsPanel, BorderLayout.CENTER); //// Add the actual UI to the center of the main frame
 
+
             // The following code can be kept here. It makes sure refresh is called every three seconds.
             java.util.Timer timer = new java.util.Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    /// Refresh every 6s (was originally 3s, played around with it)
-                    statisticsPanel.vertexList.revalidate(); // Insert a call to the refresh method here. Make sure to do the casting.
+                    /// Refresh every 10 seconds
+                    statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
                 }
-            }, 6000, 6000);
+            }, 10000, 10000);
         }
     }
 
@@ -203,7 +204,7 @@ public class WebCrawlerMain {
 
         /// Panels and their holders.
         private JPanel buttonPanel; /// Panel to hold all the buttons. Positioned at bottom.
-        private ScrollPane scrollPane; /// ScrollPane to hold the table of data.
+        private JScrollPane scrollPane; /// ScrollPane to hold the table of data.
         private JPanel statsPanel;     /// Panel to hold statistics
         private JPanel scrollPaneHolder; /// Panel to hold scrollPane
 
@@ -211,7 +212,6 @@ public class WebCrawlerMain {
 
             //// Set the proper layout
             this.setLayout(new BorderLayout());
-
 
 
             /// Create the components (call the proper methods)
@@ -225,25 +225,9 @@ public class WebCrawlerMain {
             this.add(statsPanel, BorderLayout.NORTH); /// Add the statsPanel to the top of the frame
             this.add(scrollPaneHolder, BorderLayout.CENTER); /// Add the ScrollPaneHolder (table) to the center of the frame
             this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom of the frame
-
-            /////// Used to test table
-//            ArrayList<String> dikkepaska = new ArrayList<String>();
-//            String a = "1";
-//            String b = "1555";
-//            String c = "https:///testi.com";
-//            Collections.addAll(dikkepaska, a, b, c);
-//
-//
-//
-//
-//            //// Testing scrollpane. . ADD THE NECESSARY DATA HERE!!!!!!
-//            for (int i = 0; i < 50; i++) {
-//                model.addRow(dikkepaska.toArray());
-//            }
-
-
         }
 
+          
         /// TextFields for Statistics overview
         public void createTextFields() {
             vertices = new JTextField(String.valueOf(internetModel.getNumberOfVertices()));
@@ -294,12 +278,19 @@ public class WebCrawlerMain {
                     System.exit(0); //// Might be a sloppy implementation
                 }
             });
+
+            ButtonUtils.addButton(buttonPanel, "Start", new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    refresh();
+                }
+            });
         }
 
         /// ScrollPane to store the table
         public void createScrollPanePanel() {
             /// New panel for holding scrollpane so we can position things better
-            scrollPane = new ScrollPane();
+            scrollPane = new JScrollPane();
             scrollPaneHolder = new JPanel();
 
             scrollPaneHolder.setLayout(new BorderLayout());
@@ -308,6 +299,15 @@ public class WebCrawlerMain {
 
 
             scrollPane.add(vertexList); /// Add the table to the scrollable pane
+            scrollPane.getViewport().add(vertexList);
+
+        }
+
+        public void addtoTable(Graph finalModel) {
+            List<Vertex> asd = finalModel.copyShowingList();
+            for (int i = 0; i < 50; i++) {
+                model.addRow(asd.toArray());
+            }
         }
 
         /// Panel to hold the statistics
@@ -321,10 +321,10 @@ public class WebCrawlerMain {
             statsPanel.setLayout(new GridLayout(5, 5));
 
             /// TextFields for OverView, replace Strings with appropriate getX() methods
-            vertices = new JTextField("test");
-            edges = new JTextField("edges");
-            ev = new JTextField("555555");
-            bandwidth = new JTextField("Bandwidth");
+            vertices = new JTextField(String.valueOf(verticesNumber));
+            edges = new JTextField(String.valueOf(edgesNumber));
+            ev = new JTextField(String.valueOf(ratioNumber));
+            bandwidth = new JTextField(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
 
             this.add(statsPanel, BorderLayout.NORTH);
 
@@ -351,22 +351,29 @@ public class WebCrawlerMain {
         /// Refresh UI (table)
         public void refresh() {
             // Refresh the content of the table. The call the TablePacker.
-            vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
-            new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
+
             copyInfo();
             for (Vertex vertex : showingList) {
                 String[] row = {Integer.toString(vertex.getNumberOfTargetedBys()), Integer.toString(vertex.getNumberOfEdges()), vertex.getName()};
                 model.addRow(row);
+                model.fireTableDataChanged(); // Update the table!
+
+
             }
+
             vertices.setText(verticesNumber);
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
             bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
+
+            new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
+            // vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
+
+
             /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
             /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
             /// TEST COMMENT FOR GIT!!!!
 
         }
-
     }
 }
