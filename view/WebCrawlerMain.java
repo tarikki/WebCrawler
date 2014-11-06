@@ -7,6 +7,7 @@ import model.Graph;
 import model.Vertex;
 import util.ButtonUtils;
 import util.TablePacker;
+import util.URLUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -36,6 +37,7 @@ public class WebCrawlerMain {
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
+    public static URLUtil urlUtil = new URLUtil();
 
     int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
@@ -61,7 +63,6 @@ public class WebCrawlerMain {
 
 
                 verticesFrame.setVisible(true);
-
 
 
             }
@@ -138,9 +139,9 @@ public class WebCrawlerMain {
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
 
-                       this.setTitle("Web Crawler");
+            this.setTitle("Web Crawler");
             this.setLayout(new BorderLayout());
-            StatisticsPanel statisticsPanel = new StatisticsPanel();
+            final StatisticsPanel statisticsPanel = new StatisticsPanel();
             statisticsPanel.setVisible(true);
             this.add(statisticsPanel, BorderLayout.CENTER); //// add the panel to the frame (center)
 
@@ -149,8 +150,8 @@ public class WebCrawlerMain {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-
-                    // asd.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
+                    /// Not sure if I did this correctly.. Does some weird shit from time to time
+                   statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
                 }
             }, 3000, 3000);
         }
@@ -168,6 +169,7 @@ public class WebCrawlerMain {
         private JTable vertexList;
 
         public StatisticsPanel() {
+
             this.setLayout(new BorderLayout());
             // Create button subpanel
 
@@ -189,17 +191,21 @@ public class WebCrawlerMain {
             ButtonUtils.addButton(buttonPanel, "Stop", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    //// Stop functionality added here
+                   executor.shutdown();
+                    System.exit(0); //// Might be a sloppy implementation
                 }
             });
 
 
-            String[] columnNames = {"#", "Degree", "URL"}; /// WIll be used to name columns later with arraylist & columnNames
+            /////// Used to test table.
             ArrayList<String> dikkepaska = new ArrayList<String>();
             String a = "1";
             String b = "1555";
             String c = "https:///testi.com";
             Collections.addAll(dikkepaska, a, b, c);
+
+
+
             vertexList = new JTable(new DefaultTableModel());
             DefaultTableModel model = (DefaultTableModel) vertexList.getModel();
 
@@ -216,7 +222,7 @@ public class WebCrawlerMain {
 
             ///model.addRow(columnNames);
             //// Testing scrollpane
-            for (int i = 0; i<50; i++) {
+            for (int i = 0; i < 50; i++) {
                 model.addRow(dikkepaska.toArray());
             }
 
@@ -234,7 +240,6 @@ public class WebCrawlerMain {
 
 
             scrollPane.add(vertexList);
-
 
 
             Panel statsPanel = new Panel();
@@ -261,7 +266,6 @@ public class WebCrawlerMain {
             statsPanel.add(bandwidth);
 
 
-
             // Create vertex table. Create Statistics Overview panel.
             // Use a Grid Layout to put the Statistics Overview on. I used
             // 5 by 5 to have some layouting.
@@ -273,7 +277,7 @@ public class WebCrawlerMain {
             vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
             /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
-            /// Probably because of auto-resizing somewhere
+            /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
 
 
         }
