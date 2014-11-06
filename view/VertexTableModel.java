@@ -1,8 +1,8 @@
 package view;
 
-import javax.swing.table.AbstractTableModel;
-
 import model.Graph;
+
+import javax.swing.table.AbstractTableModel;
 
 public class VertexTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
@@ -10,12 +10,16 @@ public class VertexTableModel extends AbstractTableModel {
 	private Graph internetModel;
 	
 	public VertexTableModel(Graph internetModel) {
-
+       this.internetModel = internetModel;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return 0;
+
+
+
+
+        return 0;
 	}
 
 	@Override

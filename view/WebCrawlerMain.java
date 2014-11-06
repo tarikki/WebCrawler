@@ -1,32 +1,23 @@
 package view;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-
+import controller.DatabaseThread;
+import controller.EdgeSeeker;
 import model.Constants;
 import model.Graph;
 import model.Vertex;
 import util.ButtonUtils;
-import util.MemoryUtil;
 import util.TablePacker;
-import controller.DatabaseThread;
-import controller.EdgeSeeker;
-import controller.StatisticsThread;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This class is the main Swing class building the GUI
@@ -43,10 +34,10 @@ public class WebCrawlerMain {
     private static Graph internetModel = new Graph();
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    public static final int DEFAULT_WIDTH = screenSize.width  * 2/3;
-    public static final int DEFAULT_HEIGHT = screenSize.height * 2/3;
+    public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
+    public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
 
-    int height = screenSize.height * 2/3;
+    int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
 
     public static void main(String[] args) {
@@ -70,6 +61,7 @@ public class WebCrawlerMain {
 
 
                 verticesFrame.setVisible(true);
+
 
 
             }
@@ -138,19 +130,15 @@ public class WebCrawlerMain {
         // A JFrame used to host the Statistics Panel
 
 
-
-
-
         private static final long serialVersionUID = 1L;
 
         public VerticesFrame() {
             // Create the frame, add the right panel. Use a BorderLayout. Set the title.
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-            ///this.setResizable(false);
-            System.out.println(height);
-            this.setTitle("Web crawler");
+
+
+                       this.setTitle("Web Crawler");
             this.setLayout(new BorderLayout());
             StatisticsPanel statisticsPanel = new StatisticsPanel();
             statisticsPanel.setVisible(true);
@@ -208,28 +196,48 @@ public class WebCrawlerMain {
 
             String[] columnNames = {"#", "Degree", "URL"}; /// WIll be used to name columns later with arraylist & columnNames
             ArrayList<String> dikkepaska = new ArrayList<String>();
-            String a = "apina";
-            String b = "banaani";
-            String c = "corolla";
-            Collections.addAll(dikkepaska, a,b,c);
-            vertexList = new JTable(new DefaultTableModel(0,0));
+            String a = "1";
+            String b = "1555";
+            String c = "https:///testi.com";
+            Collections.addAll(dikkepaska, a, b, c);
+            vertexList = new JTable(new DefaultTableModel());
             DefaultTableModel model = (DefaultTableModel) vertexList.getModel();
+
             vertexList.setVisible(true);
 
             /// Column names (first row) find better implementation and try with scrollpane.
             model.addColumn("#");
             model.addColumn("Degree");
             model.addColumn("URL");
-            model.addRow(columnNames);
-            model.addRow(dikkepaska.toArray());
+
+            /// Get header so we can set column names to visible
+            JTableHeader header = vertexList.getTableHeader();
+            header.setVisible(true);
+
+            ///model.addRow(columnNames);
+            //// Testing scrollpane
+            for (int i = 0; i<50; i++) {
+                model.addRow(dikkepaska.toArray());
+            }
 
 
-            ///vertexList.setLayout(new GridLayout(5,5));
-            this.add(vertexList, BorderLayout.CENTER); /// add the table to the center of the panel
+            /// Add table to scrollpane so you can scroll through the URLs
+            ScrollPane scrollPane = new ScrollPane();
+
+
+            /// New panel for scrollpane so we can position things better
+            JPanel panel = new JPanel();
+            this.add(panel, BorderLayout.CENTER);
+            panel.setLayout(new BorderLayout());
+            panel.add(header, BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
+
+
+            scrollPane.add(vertexList);
+
+
 
             Panel statsPanel = new Panel();
-            statsPanel.setName("Statistics overview");
-
             statsPanel.setVisible(true);
             statsPanel.setLayout(new GridLayout(5, 5));
 
@@ -241,6 +249,7 @@ public class WebCrawlerMain {
 
             this.add(statsPanel, BorderLayout.NORTH);
 
+
             //// Add new labels and the textfields to the panel
             statsPanel.add(new JLabel("# Vertices"));
             statsPanel.add(vertices);
@@ -251,6 +260,8 @@ public class WebCrawlerMain {
             statsPanel.add(new JLabel("Bandwith"));
             statsPanel.add(bandwidth);
 
+
+
             // Create vertex table. Create Statistics Overview panel.
             // Use a Grid Layout to put the Statistics Overview on. I used
             // 5 by 5 to have some layouting.
@@ -259,8 +270,11 @@ public class WebCrawlerMain {
 
         public void refresh() {
             // Refresh the content of the table. The call the TablePacker.
-            vertexList.revalidate(); /// REFRESH THE LIST (AKA THE TABLE)
+            vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
+            /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
+            /// Probably because of auto-resizing somewhere
+
 
         }
 
