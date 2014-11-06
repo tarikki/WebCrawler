@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -143,7 +144,7 @@ public class WebCrawlerMain {
         edges = internetModel.getNumberOfEdges();
     }
 
-    pucli 
+
 
     class VerticesFrame extends JFrame {
         // A JFrame used to host the Statistics Panel
@@ -210,12 +211,8 @@ public class WebCrawlerMain {
 
             //// Set the proper layout
             this.setLayout(new BorderLayout());
-            // Create button subpanel
 
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new FlowLayout());
-            buttonPanel.setVisible(true);
-            this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom
+
 
             /// Create the components (call the proper methods)
             createButtons();
@@ -358,7 +355,7 @@ public class WebCrawlerMain {
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
             /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
             /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
-
+            /// TEST COMMENT FOR GIT!!!!
 
         }
 
