@@ -8,7 +8,6 @@ import model.Vertex;
 import util.ButtonUtils;
 import util.MemoryUtil;
 import util.TablePacker;
-import util.URLUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,8 +16,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,7 +42,6 @@ public class WebCrawlerMain {
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
-    public static URLUtil urlUtil = new URLUtil();
 
 
     public static List<Vertex> showingList;
@@ -167,6 +167,7 @@ public class WebCrawlerMain {
 
 
             // The following code can be kept here. It makes sure refresh is called every three seconds.
+            // Refresh table-data!
             java.util.Timer timer = new java.util.Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -175,7 +176,21 @@ public class WebCrawlerMain {
                     statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
                 }
             }, 10000, 10000);
+
+
+            /// Timer for stats overview
+            java.util.Timer timer2 = new java.util.Timer();
+            timer2.schedule(new TimerTask() {
+                @Override
+                public void run() {
+
+                    /// Refresh every 2 seconds
+                    statisticsPanel.refreshUp(); // Insert a call to the refresh method here. Make sure to do the casting.
+
+                }
+            }, 2000, 2000);
         }
+
     }
 
     /**
@@ -283,6 +298,7 @@ public class WebCrawlerMain {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     refresh();
+                    refreshUp();
                 }
             });
         }
@@ -303,12 +319,6 @@ public class WebCrawlerMain {
 
         }
 
-        public void addtoTable(Graph finalModel) {
-            List<Vertex> asd = finalModel.copyShowingList();
-            for (int i = 0; i < 50; i++) {
-                model.addRow(asd.toArray());
-            }
-        }
 
         /// Panel to hold the statistics
         public void createStatsPanel() {
@@ -360,21 +370,25 @@ public class WebCrawlerMain {
 
 
             }
+            new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
+        }
 
+        /// Used to refresh bandwith etc every 2s
+        public void refreshUp() {
+            /// @TODO look for a better way to implement threadcount
+            ThreadGroup currentGroup = Thread.currentThread().getThreadGroup();
+            int noThreads = currentGroup.activeCount();
             vertices.setText(verticesNumber);
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
-            threads.setText(String.valueOf(Thread.activeCount()));
+            threads.setText(String.valueOf(noThreads));
+
             bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
 
-            new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
-            // vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
-
-
-            /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
-            /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
-            /// TEST COMMENT FOR GIT!!!!
-
         }
+
+
     }
 }
+
+
