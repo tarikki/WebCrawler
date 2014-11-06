@@ -227,7 +227,7 @@ public class WebCrawlerMain {
             this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom of the frame
         }
 
-          
+
         /// TextFields for Statistics overview
         public void createTextFields() {
             vertices = new JTextField(String.valueOf(internetModel.getNumberOfVertices()));
@@ -351,7 +351,7 @@ public class WebCrawlerMain {
         /// Refresh UI (table)
         public void refresh() {
             // Refresh the content of the table. The call the TablePacker.
-
+            new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
             copyInfo();
             for (Vertex vertex : showingList) {
                 String[] row = {Integer.toString(vertex.getNumberOfTargetedBys()), Integer.toString(vertex.getNumberOfEdges()), vertex.getName()};
@@ -364,6 +364,7 @@ public class WebCrawlerMain {
             vertices.setText(verticesNumber);
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
+            threads.setText(String.valueOf(Thread.activeCount()));
             bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
 
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
