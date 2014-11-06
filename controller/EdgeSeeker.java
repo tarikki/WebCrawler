@@ -62,33 +62,42 @@ public class EdgeSeeker implements Runnable {
     public void run() {
         // The core code goes here. Make it work!
         ArrayList<String> anchors = null;
-        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
-        System.out.println("Edges: " + internetModel.getNumberOfEdges());
-        System.out.println("Bandwidth used: " + MemoryUtil.readableFileSize((internetModel.getBandwidthUsed())));
+        System.out.println("Vertices: " + internetModel.getNumberOfVertices() + ", Edges: " + internetModel.getNumberOfEdges());
+
+//        System.out.println("Bandwidth used: " + MemoryUtil.readableFileSize((internetModel.getBandwidthUsed())));
         try {
-            System.out.println(source.getName());
+//            System.out.println(source.getName());
             anchors = URLUtil.getAnchors(source.getName(), internetModel);
             for (String anchor : anchors) {
                 String cleanAnchor = URLUtil.stripURL(anchor);
-                boolean validAddress = URLUtil.isReachableURL(cleanAnchor);
-                if (validAddress) {
+
+                if (cleanAnchor != null) {
                     Vertex newVertex = new Vertex(cleanAnchor);
                     if (!alreadyUnderExamination.contains(newVertex)) {
 //                        System.out.println("Adding " + cleanAnchor);
 //                        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
 //                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
-                        internetModel.addVertex(newVertex);
-                        internetModel.addEdge(source, newVertex);
-                        EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
+                        if (internetModel.getVertices().contains(newVertex)) {
+                            newVertex = internetModel.getVertexByName(newVertex);
+                            internetModel.addVertex(newVertex);
+                            internetModel.addEdge(source, newVertex);
+                        } else {
+                            internetModel.addVertex(newVertex);
+                            internetModel.addEdge(source, newVertex);
+                            EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
+                            executor.execute(edgeSeeker);
+                        }
+
+
                         alreadyUnderExamination.add(newVertex);
-                        executor.execute(edgeSeeker);
+
                     }
                 }
+
             }
         } catch (IOException | VertexInvalidException | VertexUnreachableException e) {
             e.printStackTrace();
         }
-
 
 
     }

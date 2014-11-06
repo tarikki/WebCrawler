@@ -1,6 +1,7 @@
 package util;
 
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
@@ -45,13 +46,19 @@ public class URLUtil {
      */
     public static String stripURL(String name) {
         String protocol = "";
-        String host;
+        String host = null;
         String path;
         URL anURL = null;
         String result = null;
+//        System.out.println(name + " " + (name==null) + name.length());
+        name = name.replaceAll(" ", "");
+        if (name.length() == 0) {
+            return result;
+        }
+
         if (!protocolPattern.matcher(name).find()) {
             name = "http://" + name;
-            System.out.println("No Protocol!");
+//            System.out.println("No Protocol!");
         }
         try {
 //            System.out.println(name.length());
@@ -61,10 +68,14 @@ public class URLUtil {
             e.printStackTrace();
         }
 
-
+//        if (anURL.getHost() == null){
+//            return host;
+//        } else{
+        host = anURL.getHost();
+//        }
         if (!protocol.equals("mailto") && !protocol.equals("ftp") && !protocol.equals("")) { //if not mailto, return address. Otherwise keep the result as null
 
-            host = anURL.getHost();
+
             path = anURL.getPath();
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -76,6 +87,7 @@ public class URLUtil {
             result = stringBuilder.toString();
         }
 
+//        if (result.equals("http://")) System.out.println("gothca!");
 
         return result;
     }
@@ -130,8 +142,23 @@ public class URLUtil {
         }
     }
 
-    public static boolean isReachableJSoup(Connection connection, String url) throws IOException {
-        int response = connection.execute().statusCode();
+    private static boolean isReachableJSoup(Connection connection, String url) {
+        int response = 400;
+        try {
+            response = connection.execute().statusCode();
+        } catch (IOException | IllegalArgumentException e) {
+            e.printStackTrace();
+            System.out.println(url + " IS LE FUCKED");
+            if (e.getClass().toString().equals("class java.net.SocketException")) {
+                System.out.println("BitchServer on: " + url);
+            }
+            if (e.getClass().toString().equals("class org.jsoup.HttpStatusException")) {
+                HttpStatusException exception = (HttpStatusException) e;
+
+                System.out.println("Interestin!: " + exception.getStatusCode());
+            }
+            return false;
+        }
         if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
         {
             return true;
@@ -154,26 +181,26 @@ public class URLUtil {
      * @throws IOException if anything goes wrong retrieving the page
      */
 
-    public static String getURLContent(String anURL) throws IOException {
-        //TODO put the statistic callback back in the this method
-        URL urlObj = new URL(anURL);
-        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
-        con.setRequestMethod("GET");
-//        int responseCode = con.getResponseCode();
-//        System.out.println("Response " + responseCode);
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-            response.append("\n");
-        }
-        in.close();
-//        System.out.println(response.toString());
-
-
-        return response.toString();
-    }
+//    public static String getURLContent(String anURL) throws IOException {
+//        //TODO put the statistic callback back in the this method
+//        URL urlObj = new URL(anURL);
+//        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
+//        con.setRequestMethod("GET");
+////        int responseCode = con.getResponseCode();
+////        System.out.println("Response " + responseCode);
+//        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//        String inputLine;
+//        StringBuilder response = new StringBuilder();
+//        while ((inputLine = in.readLine()) != null) {
+//            response.append(inputLine);
+//            response.append("\n");
+//        }
+//        in.close();
+////        System.out.println(response.toString());
+//
+//
+//        return response.toString();
+//    }
 
     /**
      * This method gets a webpage in the form of a String and retrieves all anchors in it.
@@ -191,7 +218,9 @@ public class URLUtil {
         ArrayList<String> result = new ArrayList<>();
         long bytes = 0;
         try {
-//        System.out.println(anURL);
+//            System.out.println(anURL);
+//            String cleanUrl = stripURL(anURL);
+//            System.out.println(cleanUrl);
             Connection connection = Jsoup.connect(anURL).userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
                     .timeout(10000).referrer("http://www.google.com");
 
@@ -200,9 +229,11 @@ public class URLUtil {
                 bytes += document.toString().getBytes().length;
 //        Document document = Jsoup.parse(content, "http://www.regexplanet.com/");
                 Elements elements = document.select("a[href]");
-                System.out.println("Links on page: " + elements.size());
+                elements.addAll(document.select("frame[src]"));
+//                System.out.println("Links on page: " + elements.size());
                 for (Element element : elements) {
                     if (element.attr("abs:href") != null) result.add(element.attr("abs:href"));
+                    if (element.attr("abs:src") != null) result.add(element.attr("abs:src"));
 //            System.out.println(element.attr("abs:href"));
 
                 }
