@@ -26,10 +26,16 @@ public class Graph implements StatisticsCallback {
 	public SortedSet<Vertex> getVertices() {
 		return vertices;
 	}
-	public Vertex getVertexByName(Vertex vertex){
-		return showingList.get(showingList.indexOf(vertex));
 
-	}
+//	public Vertex getVertexByName(Vertex vertex){
+//		return vertices);
+//
+//	}
+
+//	public Vertex getVertexByName(Vertex vertex){
+//		return showingList.get(showingList.indexOf(vertex));
+//
+//	}
 
 	public synchronized List<Vertex> copyShowingList(){
 		List<Vertex> clone = new ArrayList<Vertex>(showingList.size());

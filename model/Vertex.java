@@ -79,7 +79,8 @@ public class Vertex implements Comparable<Vertex> {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return 0;
+//        System.out.println(result);
+        return result;
     }
 
     @Override

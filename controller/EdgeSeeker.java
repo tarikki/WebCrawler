@@ -40,7 +40,10 @@ public class EdgeSeeker implements Runnable {
     private Vertex source;
     private ExecutorService executor;
     private DatabaseThread databaseThread;
-    private static Set<Vertex> alreadyUnderExamination = Collections.synchronizedSet(new HashSet<Vertex>());
+//    private static Set<Vertex> alreadyUnderExamination = Collections.synchronizedSet(new HashSet<Vertex>());
+    private Set<Vertex> alreadyUnderExamination = new HashSet<Vertex>();
+
+
 
     public EdgeSeeker(Graph internetModel, Vertex source, ExecutorService executor, DatabaseThread databaseThread) {
         super();
@@ -48,6 +51,7 @@ public class EdgeSeeker implements Runnable {
         this.source = source;
         this.executor = executor;
         this.databaseThread = databaseThread;
+        alreadyUnderExamination.remove(source);
     }
 
     public void storeSource() {
@@ -60,25 +64,30 @@ public class EdgeSeeker implements Runnable {
 
     @Override
     public void run() {
-        // The core code goes here. Make it work!
-        ArrayList<String> anchors = null;
-        System.out.println("Vertices: " + internetModel.getNumberOfVertices() + ", Edges: " + internetModel.getNumberOfEdges());
 
-//        System.out.println("Bandwidth used: " + MemoryUtil.readableFileSize((internetModel.getBandwidthUsed())));
         try {
 //            System.out.println(source.getName());
-            anchors = URLUtil.getAnchors(source.getName(), internetModel);
+            ArrayList<String> anchors = URLUtil.getAnchors(source.getName(), internetModel);
             for (String anchor : anchors) {
                 String cleanAnchor = URLUtil.stripURL(anchor);
 
                 if (cleanAnchor != null) {
                     Vertex newVertex = new Vertex(cleanAnchor);
+//                    System.out.println(internetModel.getVertices().contains(newVertex));
+                    boolean present = internetModel.getVertices().contains(newVertex);
+//                    System.out.print(present);
                     if (!alreadyUnderExamination.contains(newVertex)) {
 //                        System.out.println("Adding " + cleanAnchor);
 //                        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
 //                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
-                        if (internetModel.getVertices().contains(newVertex)) {
-                            newVertex = internetModel.getVertexByName(newVertex);
+//                        System.out.println(internetModel.getVertices().contains(newVertex));
+//                        System.out.println(present + " so go there!");
+
+                        if (present) {
+
+//                            System.out.println("Fuck this shisishit!!");
+//                            System.out.println("Vertices: " + internetModel.getNumberOfVertices() + ", Edges: " + internetModel.getNumberOfEdges());
+//                            newVertex = internetModel.getVertexByName(newVertex);
 //                            internetModel.addVertex(newVertex);
                             internetModel.addEdge(source, newVertex);
                         } else {
@@ -88,7 +97,7 @@ public class EdgeSeeker implements Runnable {
                             executor.execute(edgeSeeker);
                         }
 
-
+                        System.out.println("alreadyunder "+ alreadyUnderExamination.size());
                         alreadyUnderExamination.add(newVertex);
 
                     }
