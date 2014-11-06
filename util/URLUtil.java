@@ -245,7 +245,7 @@ public class URLUtil {
 
         // What if the stream itself could not be read. In the future, keep track of how fast this occurs.
         // It it happens too many times in a row, end the thread pool
-        // For now, do nothing
+        // For now, do nothing asdlkfjsadlfkj
         callback.amountUsed(bytes);
         return result;
     }
