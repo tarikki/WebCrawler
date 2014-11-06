@@ -1,7 +1,9 @@
 package util;
 
-import com.sun.xml.internal.bind.v2.TODO;
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
+import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -9,9 +11,12 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 /**
  * An utility class used to process URL's.
@@ -23,8 +28,9 @@ public class URLUtil {
 
     //    private static Pattern pattern = Pattern.compile("(?<=\\.)\\w*$");
 //    private static Pattern hrefPattern = Pattern.compile("(?<=<a href=\").*(?=\")");
-    private static Pattern hrefPattern = Pattern.compile("a href=\"(.*?)\"");
-
+//    private static Pattern hrefPattern = Pattern.compile("a href=\"(.*?)\"");
+//    private static Pattern mailtoPattern = Pattern.compile("^mailto:");
+    private static Pattern protocolPattern = Pattern.compile("://");
 
 
     /**
@@ -39,42 +45,51 @@ public class URLUtil {
      * @return String the stripped URL
      */
     public static String stripURL(String name) {
-        String protocol;
-        String host;
+        String protocol = "";
+        String host = null;
         String path;
+        URL anURL = null;
+        String result = null;
+//        System.out.println(name + " " + (name==null) + name.length());
+        name = name.replaceAll(" ", "");
+        if (name.length() == 0) {
+            return result;
+        }
 
-//        Matcher match = pattern.matcher(name);
-//        if (match.find()){
-//            System.out.println("taddaaa "+match.group());
-//            name = name.replace(("."+match.group()), "");
-//        }
-
-
-        URL aURL = null;
+        if (!protocolPattern.matcher(name).find()) {
+            name = "http://" + name;
+//            System.out.println("No Protocol!");
+        }
         try {
 //            System.out.println(name.length());
-            aURL = new URL(name);
+            anURL = new URL(name);
+            protocol = anURL.getProtocol();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        if (aURL.getProtocol() != null) {
-            protocol = aURL.getProtocol();
-        } else {
-            protocol = "http";
+
+//        if (anURL.getHost() == null){
+//            return host;
+//        } else{
+        host = anURL.getHost();
+//        }
+        if (!protocol.equals("mailto") && !protocol.equals("ftp") && !protocol.equals("")) { //if not mailto, return address. Otherwise keep the result as null
+
+
+            path = anURL.getPath();
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(protocol);
+            stringBuilder.append("://");
+            stringBuilder.append(host);
+            stringBuilder.append(path);
+//        System.out.println(stringBuilder);
+            result = stringBuilder.toString();
         }
 
-        host = aURL.getHost();
-        path = aURL.getPath();
+//        if (result.equals("http://")) System.out.println("gothca!");
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(protocol);
-        stringBuilder.append("://");
-        stringBuilder.append(host);
-        stringBuilder.append(path);
-//        System.out.println(stringBuilder);
-
-
-        return stringBuilder.toString();
+        return result;
     }
 
     /**
@@ -83,17 +98,6 @@ public class URLUtil {
      *
      * @param anURL anURL the String representation of the URL to check for
      * @return boolean true if a connection could be established, false otherwise
-     */
-
-
-    /**
-     * This method connects to a given URL and retrieves the webpage behind it. It assumes an URL is
-     * reachable; if not, it throws an Exception
-     * The method also keeps track of the amount of data retrieved using the StatisticsCallback interface
-     *
-     * @param anURL anURL the String representation of the URL to be retrieved
-     * @return String the retrieved webpage as one String
-     * @throws IOException if anything goes wrong retrieving the page
      */
 
 
@@ -107,22 +111,63 @@ public class URLUtil {
 
 
     public static boolean isReachableURL(String anURL) throws IOException {
-//        System.out.println(anURL);
-        HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setConnectTimeout(5000); //// Set timeout to 3s (may be too long?)
-        if (connection.getResponseCode() != 200) /// If response code is other than 200 -> website is unreachable
+        //System.out.println(anURL);
 
-        {
+        if (anURL == null) return false; // if no url, don't bother checking
 
-            System.out.println(anURL + " IS LE FUCKED");
+        int response = 400;
+        try {
+//            anURL = anURL.replace("https", "http");
+            HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(5000); //// Set timeout to 5s (may be too long?)
+            response = connection.getResponseCode();
+//            System.out.println(response);
+        } catch (IOException | ClassCastException e) {
+//            e.printStackTrace();
+//            System.out.println(e.getClass().toString());
+            System.out.println("This did not work: " + anURL);
+            if (e.getClass().toString().equals("class java.net.SocketException")) {
+                System.out.println("BitchServer on: " + anURL);
+            }
 
-            return false;
-        } else {
-//            System.out.println("IT WORKS!!!!");
-            return true;
 
         }
+        if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
+        {
+            return true;
+        } else {
+            System.out.println(anURL + " IS LE FUCKED! HTTP response " + response);
+            return false;
+        }
+    }
+
+    private static boolean isReachableJSoup(Connection connection, String url) {
+        int response = 400;
+        try {
+            response = connection.execute().statusCode();
+        } catch (IOException | IllegalArgumentException e) {
+            e.printStackTrace();
+            System.out.println(url + " IS LE FUCKED");
+            if (e.getClass().toString().equals("class java.net.SocketException")) {
+                System.out.println("BitchServer on: " + url);
+            }
+            if (e.getClass().toString().equals("class org.jsoup.HttpStatusException")) {
+                HttpStatusException exception = (HttpStatusException) e;
+
+                System.out.println("Interestin!: " + exception.getStatusCode());
+            }
+            return false;
+        }
+        if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
+        {
+            return true;
+        } else {
+            System.out.println(url + " IS LE FUCKED! HTTP response " + response);
+            return false;
+        }
+
+
     }
 
 
@@ -136,26 +181,26 @@ public class URLUtil {
      * @throws IOException if anything goes wrong retrieving the page
      */
 
-    public static String getURLContent(String anURL) throws IOException {
-        //TODO put the statistic callback back in the this method
-        URL urlObj = new URL(anURL);
-        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
-        con.setRequestMethod("GET");
-        int responseCode = con.getResponseCode();
-//        System.out.println("Response " + responseCode);
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-            response.append("\n");
-        }
-        in.close();
-//        System.out.println(response.toString());
-
-
-        return response.toString();
-    }
+//    public static String getURLContent(String anURL) throws IOException {
+//        //TODO put the statistic callback back in the this method
+//        URL urlObj = new URL(anURL);
+//        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
+//        con.setRequestMethod("GET");
+////        int responseCode = con.getResponseCode();
+////        System.out.println("Response " + responseCode);
+//        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//        String inputLine;
+//        StringBuilder response = new StringBuilder();
+//        while ((inputLine = in.readLine()) != null) {
+//            response.append(inputLine);
+//            response.append("\n");
+//        }
+//        in.close();
+////        System.out.println(response.toString());
+//
+//
+//        return response.toString();
+//    }
 
     /**
      * This method gets a webpage in the form of a String and retrieves all anchors in it.
@@ -168,26 +213,40 @@ public class URLUtil {
      * @return A List containing the anchors found
      */
 
-    public static ArrayList<String> getAnchors(String anURL) throws IOException {
+    public static ArrayList<String> getAnchors(String anURL, StatisticsCallback callback) throws IOException {
         //TODO put the statistic callback back in the this method
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
+        long bytes = 0;
+        try {
+//            System.out.println(anURL);
+//            String cleanUrl = stripURL(anURL);
+//            System.out.println(cleanUrl);
+            Connection connection = Jsoup.connect(anURL).userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
+                    .timeout(10000).referrer("http://www.google.com");
 
-//        System.out.println(anURL);
-        Document document = Jsoup.connect(anURL).get();
+            if (isReachableJSoup(connection, anURL)) {
+                Document document = connection.get();
+                bytes += document.toString().getBytes().length;
 //        Document document = Jsoup.parse(content, "http://www.regexplanet.com/");
-        Elements elements = document.select("a[href]");
-        System.out.println("Links on page: "+elements.size());
-        for (Element element : elements) {
-            if (element.attr("abs:href")!=null) result.add(element.attr("abs:href"));
+                Elements elements = document.select("a[href]");
+                elements.addAll(document.select("frame[src]"));
+//                System.out.println("Links on page: " + elements.size());
+                for (Element element : elements) {
+                    if (element.attr("abs:href") != null) result.add(element.attr("abs:href"));
+                    if (element.attr("abs:src") != null) result.add(element.attr("abs:src"));
 //            System.out.println(element.attr("abs:href"));
 
+                }
+            }
+        } catch (UnsupportedMimeTypeException e) {
+            System.out.println("Can't parse " + e.getMimeType());
         }
 
 
         // What if the stream itself could not be read. In the future, keep track of how fast this occurs.
         // It it happens too many times in a row, end the thread pool
-        // For now, do nothing
-
+        // For now, do nothing asdlkfjsadlfkj
+        callback.amountUsed(bytes);
         return result;
     }
 }

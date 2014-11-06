@@ -30,6 +30,10 @@ public class Graph implements StatisticsCallback {
 	public SortedSet<Vertex> getVertices() {
 		return vertices;
 	}
+	public Vertex getVertexByName(Vertex vertex){
+		return showingList.get(showingList.indexOf(vertex));
+
+	}
 
 	public synchronized void addVertex(Vertex newVertex) {
 		if (vertices.add(newVertex)) {
