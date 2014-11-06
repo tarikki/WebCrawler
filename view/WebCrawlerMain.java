@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the main Swing class building the GUI
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class WebCrawlerMain {
-    private static ExecutorService executor = Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
+    private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
     private static Graph internetModel = new Graph();
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
 
@@ -171,10 +170,10 @@ public class WebCrawlerMain {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    /// Refresh every 6s (was originally 3s, played around with it)
-                    statisticsPanel.vertexList.revalidate(); // Insert a call to the refresh method here. Make sure to do the casting.
+                    /// Refresh every 10 seconds
+                    statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
                 }
-            }, 6000, 6000);
+            }, 10000, 10000);
         }
     }
 
@@ -292,11 +291,6 @@ public class WebCrawlerMain {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     executor.shutdown();
-                    try {
-                        executor.awaitTermination(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
                     System.exit(0); //// Might be a sloppy implementation
                 }
             });
@@ -327,10 +321,10 @@ public class WebCrawlerMain {
             statsPanel.setLayout(new GridLayout(5, 5));
 
             /// TextFields for OverView, replace Strings with appropriate getX() methods
-            vertices = new JTextField("test");
-            edges = new JTextField("edges");
-            ev = new JTextField("555555");
-            bandwidth = new JTextField("Bandwidth");
+            vertices = new JTextField(String.valueOf(verticesNumber));
+            edges = new JTextField(String.valueOf(edgesNumber));
+            ev = new JTextField(String.valueOf(ratioNumber));
+            bandwidth = new JTextField(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
 
             this.add(statsPanel, BorderLayout.NORTH);
 
@@ -368,7 +362,11 @@ public class WebCrawlerMain {
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
             bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
-            threads.setText(String.valueOf(Thread.activeCount()));
+
+            new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
+            // vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
+
+
             /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
             /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
             /// TEST COMMENT FOR GIT!!!!
