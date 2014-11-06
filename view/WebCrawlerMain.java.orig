@@ -8,7 +8,6 @@ import model.Vertex;
 import util.ButtonUtils;
 import util.MemoryUtil;
 import util.TablePacker;
-import util.URLUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,8 +16,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class WebCrawlerMain {
-    private static ExecutorService executor = Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
+    private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
     private static Graph internetModel = new Graph();
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
 
@@ -42,7 +43,10 @@ public class WebCrawlerMain {
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
+<<<<<<< HEAD
 
+=======
+>>>>>>> d8384392650ccd3c5f79bfcae3cb940616a9427e
 
 
     public static List<Vertex> showingList;
@@ -62,7 +66,6 @@ public class WebCrawlerMain {
         // The Runnable should create the actual frame and set it to visible
         try {
             startCrawling();
-//            stopCrawling();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,17 +136,24 @@ public class WebCrawlerMain {
         //
         // After that, write the graph to a file and exit the whole application
         executor.shutdown();
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } databaseThread.writeAllWorkAtHand();
+        System.exit(0);
 //		internetModel.writeGraph();
 //		databaseThread.writeAllWorkAtHand();
 
     }
 
-    public void copyInfo() {
+    public void copyInfo(){
         showingList = internetModel.copyShowingList();
         ratioNumber = Float.toString(internetModel.getRatioEV());
         verticesNumber = Integer.toString(internetModel.getNumberOfVertices());
         edgesNumber = Integer.toString(internetModel.getNumberOfEdges());
     }
+
 
 
     class VerticesFrame extends JFrame {
@@ -154,7 +164,6 @@ public class WebCrawlerMain {
 
         public VerticesFrame() {
             // Create the frame, add the right panel. Use a BorderLayout. Set the title.
-
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
@@ -166,8 +175,8 @@ public class WebCrawlerMain {
             statisticsPanel.setVisible(true);
             this.add(statisticsPanel, BorderLayout.CENTER); //// Add the actual UI to the center of the main frame
 
-
             // The following code can be kept here. It makes sure refresh is called every three seconds.
+            // Refresh table-data!
             java.util.Timer timer = new java.util.Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -176,7 +185,21 @@ public class WebCrawlerMain {
                     statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
                 }
             }, 10000, 10000);
+
+
+            /// Timer for stats overview
+            java.util.Timer timer2 = new java.util.Timer();
+            timer2.schedule(new TimerTask() {
+                @Override
+                public void run() {
+
+                    /// Refresh every 2 seconds
+                    statisticsPanel.refreshUp(); // Insert a call to the refresh method here. Make sure to do the casting.
+
+                }
+            }, 2000, 2000);
         }
+
     }
 
     /**
@@ -205,7 +228,7 @@ public class WebCrawlerMain {
 
         /// Panels and their holders.
         private JPanel buttonPanel; /// Panel to hold all the buttons. Positioned at bottom.
-        private JScrollPane scrollPane; /// ScrollPane to hold the table of data.
+        private ScrollPane scrollPane; /// ScrollPane to hold the table of data.
         private JPanel statsPanel;     /// Panel to hold statistics
         private JPanel scrollPaneHolder; /// Panel to hold scrollPane
 
@@ -213,6 +236,7 @@ public class WebCrawlerMain {
 
             //// Set the proper layout
             this.setLayout(new BorderLayout());
+
 
 
             /// Create the components (call the proper methods)
@@ -226,8 +250,24 @@ public class WebCrawlerMain {
             this.add(statsPanel, BorderLayout.NORTH); /// Add the statsPanel to the top of the frame
             this.add(scrollPaneHolder, BorderLayout.CENTER); /// Add the ScrollPaneHolder (table) to the center of the frame
             this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom of the frame
-        }
 
+            /////// Used to test table
+//            ArrayList<String> dikkepaska = new ArrayList<String>();
+//            String a = "1";
+//            String b = "1555";
+//            String c = "https:///testi.com";
+//            Collections.addAll(dikkepaska, a, b, c);
+//
+//
+//
+//
+//            //// Testing scrollpane. . ADD THE NECESSARY DATA HERE!!!!!!
+//            for (int i = 0; i < 50; i++) {
+//                model.addRow(dikkepaska.toArray());
+//            }
+
+
+        }
 
         /// TextFields for Statistics overview
         public void createTextFields() {
@@ -240,7 +280,9 @@ public class WebCrawlerMain {
         }
 
         /// Table that stores URL & degrees
+
         public void createTable() {
+
             vertexList = new JTable(new DefaultTableModel());
             model = (DefaultTableModel) vertexList.getModel();
 
@@ -275,20 +317,22 @@ public class WebCrawlerMain {
             ButtonUtils.addButton(buttonPanel, "Stop", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    executor.shutdown();
                     try {
-                        executor.awaitTermination(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e1) {
+                        stopCrawling();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    } catch (UnsupportedEncodingException e1) {
                         e1.printStackTrace();
                     }
-                    System.exit(0); //// Might be a sloppy implementation
-                }
-            });
 
+<<<<<<< HEAD
+=======
             ButtonUtils.addButton(buttonPanel, "Start", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     refresh();
+                    refreshUp();
+>>>>>>> d8384392650ccd3c5f79bfcae3cb940616a9427e
                 }
             });
         }
@@ -296,7 +340,7 @@ public class WebCrawlerMain {
         /// ScrollPane to store the table
         public void createScrollPanePanel() {
             /// New panel for holding scrollpane so we can position things better
-            scrollPane = new JScrollPane();
+            scrollPane = new ScrollPane();
             scrollPaneHolder = new JPanel();
 
             scrollPaneHolder.setLayout(new BorderLayout());
@@ -305,16 +349,14 @@ public class WebCrawlerMain {
 
 
             scrollPane.add(vertexList); /// Add the table to the scrollable pane
+<<<<<<< HEAD
+        }
+=======
             scrollPane.getViewport().add(vertexList);
 
         }
 
-        public void addtoTable(Graph finalModel) {
-            List<Vertex> asd = finalModel.copyShowingList();
-            for (int i = 0; i < 50; i++) {
-                model.addRow(asd.toArray());
-            }
-        }
+>>>>>>> d8384392650ccd3c5f79bfcae3cb940616a9427e
 
         /// Panel to hold the statistics
         public void createStatsPanel() {
@@ -357,34 +399,46 @@ public class WebCrawlerMain {
         /// Refresh UI (table)
         public void refresh() {
             // Refresh the content of the table. The call the TablePacker.
+            vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
             copyInfo();
             for (Vertex vertex : showingList) {
                 String[] row = {Integer.toString(vertex.getNumberOfTargetedBys()), Integer.toString(vertex.getNumberOfEdges()), vertex.getName()};
                 model.addRow(row);
-                model.fireTableDataChanged(); // Update the table!
-
-
             }
-
+<<<<<<< HEAD
             vertices.setText(verticesNumber);
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
-            threads.setText(String.valueOf(Thread.activeCount()));
             bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
-<<<<<<< HEAD
-            threads.setText(String.valueOf(Thread.activeCount()));
 =======
-
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
-            // vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
+        }
 
+        /// Used to refresh bandwith etc every 2s
+        public void refreshUp() {
+            /// @TODO look for a better way to implement threadcount
+            ThreadGroup currentGroup = Thread.currentThread().getThreadGroup();
+            int noThreads = currentGroup.activeCount();
+            vertices.setText(verticesNumber);
+            edges.setText(edgesNumber);
+            ev.setText(ratioNumber);
+            threads.setText(String.valueOf(noThreads));
+>>>>>>> d8384392650ccd3c5f79bfcae3cb940616a9427e
 
->>>>>>> 081f400e793266ef7119517ca1f001e37d2b0b4f
-            /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
-            /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
-            /// TEST COMMENT FOR GIT!!!!
+            bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
 
         }
+
+
+<<<<<<< HEAD
+        }
+
     }
 }
+=======
+    }
+}
+
+
+>>>>>>> d8384392650ccd3c5f79bfcae3cb940616a9427e
