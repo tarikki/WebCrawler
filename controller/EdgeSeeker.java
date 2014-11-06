@@ -1,19 +1,16 @@
 package controller;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-
 import model.Graph;
 import model.Vertex;
-import util.MemoryUtil;
 import util.URLUtil;
 import util.VertexInvalidException;
 import util.VertexUnreachableException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * This class might form heart and brains of the application. It is a thread which:
@@ -40,8 +37,9 @@ public class EdgeSeeker implements Runnable {
     private Vertex source;
     private ExecutorService executor;
     private DatabaseThread databaseThread;
-//    private static Set<Vertex> alreadyUnderExamination = Collections.synchronizedSet(new HashSet<Vertex>());
-    private Set<Vertex> alreadyUnderExamination = new HashSet<Vertex>();
+//    private static Set<Vertex> alreadyUnderExamination = Collections.synchronizedSet(new HashSet<>());
+//    private static SynchornizedHashSet<Vertex> alreadyUnderExamination = new SynchornizedHashSet<>();
+    private volatile Set<Vertex> alreadyUnderExamination = new HashSet<Vertex>();
 
 
 
@@ -51,7 +49,9 @@ public class EdgeSeeker implements Runnable {
         this.source = source;
         this.executor = executor;
         this.databaseThread = databaseThread;
+
         alreadyUnderExamination.remove(source);
+        
     }
 
     public void storeSource() {
@@ -97,8 +97,9 @@ public class EdgeSeeker implements Runnable {
                             executor.execute(edgeSeeker);
                         }
 
-                        System.out.println("alreadyunder "+ alreadyUnderExamination.size());
+//                        System.out.println("alreadyunder "+ alreadyUnderExamination.size());
                         alreadyUnderExamination.add(newVertex);
+                        System.out.println(alreadyUnderExamination.size());
 
                     }
                 }

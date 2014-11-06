@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the main Swing class building the GUI
@@ -33,7 +34,7 @@ import java.util.concurrent.Executors;
  */
 
 public class WebCrawlerMain {
-    private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
+    private static ExecutorService executor = Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
     private static Graph internetModel = new Graph();
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
 
@@ -41,7 +42,7 @@ public class WebCrawlerMain {
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
-    public static URLUtil urlUtil = new URLUtil();
+
 
 
     public static List<Vertex> showingList;
@@ -92,7 +93,7 @@ public class WebCrawlerMain {
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
-        Vertex startVertex = new Vertex(Constants.DEFAULT_START);
+        Vertex startVertex = new Vertex("http://hs.fi");
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
         executor.execute(edgeSeeker);
@@ -291,6 +292,11 @@ public class WebCrawlerMain {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     executor.shutdown();
+                    try {
+                        executor.awaitTermination(10, TimeUnit.SECONDS);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                     System.exit(0); //// Might be a sloppy implementation
                 }
             });
@@ -362,6 +368,7 @@ public class WebCrawlerMain {
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
             bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
+            threads.setText(String.valueOf(Thread.activeCount()));
             /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
             /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
             /// TEST COMMENT FOR GIT!!!!
