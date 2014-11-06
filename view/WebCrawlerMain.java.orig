@@ -8,7 +8,6 @@ import model.Vertex;
 import util.ButtonUtils;
 import util.MemoryUtil;
 import util.TablePacker;
-import util.URLUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,8 +40,8 @@ public class WebCrawlerMain {
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
-    public static URLUtil urlUtil = new URLUtil();
 
+<<<<<<< HEAD
 
     public static List<Vertex> showingList;
     public int vertices;
@@ -50,6 +50,8 @@ public class WebCrawlerMain {
 
     int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
+=======
+>>>>>>> ac4f4088ba741b4ac076fd2fb3496ed58fb283ad
 
     public static void main(String[] args) {
         new WebCrawlerMain();
@@ -59,8 +61,8 @@ public class WebCrawlerMain {
         // Here, create a new Runnable to insert into the EventQueue
         // The Runnable should create the actual frame and set it to visible
         try {
-            startCrawling();
-            stopCrawling();
+//            startCrawling();
+//            stopCrawling();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -155,8 +157,6 @@ public class WebCrawlerMain {
             // Create the frame, add the right panel. Use a BorderLayout. Set the title.
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-
-
             this.setTitle("Web Crawler");
             this.setLayout(new BorderLayout());
 
@@ -210,12 +210,7 @@ public class WebCrawlerMain {
 
             //// Set the proper layout
             this.setLayout(new BorderLayout());
-            // Create button subpanel
 
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new FlowLayout());
-            buttonPanel.setVisible(true);
-            this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom
 
             /// Create the components (call the proper methods)
             createButtons();
@@ -323,15 +318,6 @@ public class WebCrawlerMain {
             statsPanel.setVisible(true);
             statsPanel.setLayout(new GridLayout(5, 5));
 
-            /// TextFields for OverView, replace Strings with appropriate getX() methods
-            JTextField vertices = new JTextField("test");
-            JTextField edges = new JTextField("edges");
-            JTextField ev = new JTextField("555555");
-            JTextField bandwidth = new JTextField("Bandwidth");
-
-            this.add(statsPanel, BorderLayout.NORTH);
-
-
             //// Add new labels and the textfields to the panel
             statsPanel.add(new JLabel("# Vertices"));
             statsPanel.add(vertices);
@@ -343,12 +329,6 @@ public class WebCrawlerMain {
             statsPanel.add(threads);
             statsPanel.add(new JLabel("Bandwith"));
             statsPanel.add(bandwidth);
-
-
-            // Create vertex table. Create Statistics Overview panel.
-            // Use a Grid Layout to put the Statistics Overview on. I used
-            // 5 by 5 to have some layouting.
-
         }
 
         /// Refresh UI (table)
@@ -362,5 +342,15 @@ public class WebCrawlerMain {
 
         }
 
+<<<<<<< HEAD
+        public void showVertices(){
+
+        }
+
+=======
+>>>>>>> ac4f4088ba741b4ac076fd2fb3496ed58fb283ad
+
     }
+
+
 }
