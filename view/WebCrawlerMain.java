@@ -6,8 +6,8 @@ import model.Constants;
 import model.Graph;
 import model.Vertex;
 import util.ButtonUtils;
+import util.MemoryUtil;
 import util.TablePacker;
-import util.URLUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -34,13 +34,12 @@ public class WebCrawlerMain {
     private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
     private static Graph internetModel = new Graph();
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
+
+    //// Changed value of these so we have the same size UI regardless of user's screen.
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
-    public static URLUtil urlUtil = new URLUtil();
 
-    int height = screenSize.height * 2 / 3;
-    //int width = screenSize.width * (2 / 3);
 
     public static void main(String[] args) {
         new WebCrawlerMain();
@@ -137,23 +136,22 @@ public class WebCrawlerMain {
             // Create the frame, add the right panel. Use a BorderLayout. Set the title.
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-
-
             this.setTitle("Web Crawler");
             this.setLayout(new BorderLayout());
-            final StatisticsPanel statisticsPanel = new StatisticsPanel();
+
+            final StatisticsPanel statisticsPanel = new StatisticsPanel(); /// Needs to be final so we can use it with the timer below
             statisticsPanel.setVisible(true);
-            this.add(statisticsPanel, BorderLayout.CENTER); //// add the panel to the frame (center)
+            this.add(statisticsPanel, BorderLayout.CENTER); //// Add the actual UI to the center of the main frame
 
             // The following code can be kept here. It makes sure refresh is called every three seconds.
             java.util.Timer timer = new java.util.Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    /// Not sure if I did this correctly.. Does some weird shit from time to time
-                   statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
+                    /// Refresh every 6s (was originally 3s, played around with it)
+                    statisticsPanel.vertexList.revalidate(); // Insert a call to the refresh method here. Make sure to do the casting.
                 }
-            }, 3000, 3000);
+            }, 6000, 6000);
         }
     }
 
@@ -166,18 +164,96 @@ public class WebCrawlerMain {
      */
 
     class StatisticsPanel extends JPanel {
+
+        /// Components to build the table
         private JTable vertexList;
+        private DefaultTableModel model; /// Model for the table. Using DefaultTableModel so we don't have to implement an abstract table..
+        private JTableHeader header; /// Header of the table (column names)
+
+        //// TextFields for Statistics overview
+        private JTextField vertices;
+        private JTextField edges;
+        private String eVV; //// Edges divided by vertices. Needs a better name!
+        private JTextField ev;
+        private JTextField threads;
+        private JTextField bandwidth;
+
+
+        /// Panels and their holders.
+        private JPanel buttonPanel; /// Panel to hold all the buttons. Positioned at bottom.
+        private ScrollPane scrollPane; /// ScrollPane to hold the table of data.
+        private JPanel statsPanel;     /// Panel to hold statistics
+        private JPanel scrollPaneHolder; /// Panel to hold scrollPane
 
         public StatisticsPanel() {
 
+            //// Set the proper layout
             this.setLayout(new BorderLayout());
-            // Create button subpanel
 
-            JPanel buttonPanel = new JPanel();
+
+            /// Create the components (call the proper methods)
+            createButtons();
+            createTable();
+            createScrollPanePanel();
+            createTextFields();
+            createStatsPanel();
+
+            /// Position the components accordingly on the main frame
+            this.add(statsPanel, BorderLayout.NORTH); /// Add the statsPanel to the top of the frame
+            this.add(scrollPaneHolder, BorderLayout.CENTER); /// Add the ScrollPaneHolder (table) to the center of the frame
+            this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom of the frame
+
+            /////// Used to test table
+            ArrayList<String> dikkepaska = new ArrayList<String>();
+            String a = "1";
+            String b = "1555";
+            String c = "https:///testi.com";
+            Collections.addAll(dikkepaska, a, b, c);
+
+
+
+
+            //// Testing scrollpane. . ADD THE NECESSARY DATA HERE!!!!!!
+            for (int i = 0; i < 50; i++) {
+                model.addRow(dikkepaska.toArray());
+            }
+
+
+        }
+
+        /// TextFields for Statistics overview
+        public void createTextFields() {
+            vertices = new JTextField(String.valueOf(internetModel.getNumberOfVertices()));
+            edges = new JTextField(String.valueOf(internetModel.getNumberOfEdges()));
+            eVV = String.valueOf(internetModel.getNumberOfEdges() / internetModel.getNumberOfVertices());
+            ev = new JTextField(eVV);
+            threads = new JTextField(String.valueOf(Thread.activeCount()));
+            bandwidth = new JTextField(MemoryUtil.readableFileSize((internetModel.getBandwidthUsed())));
+        }
+
+        /// Table that stores URL & degrees
+        public void createTable() {
+            vertexList = new JTable(new DefaultTableModel());
+            model = (DefaultTableModel) vertexList.getModel();
+
+            vertexList.setVisible(true);
+
+            /// Column names (first row) find better implementation and try with scrollpane.
+            model.addColumn("#");
+            model.addColumn("Degree");
+            model.addColumn("Uniform Resource Locator");
+
+
+            /// Get header so we can set column names to visible
+            header = vertexList.getTableHeader();
+            header.setVisible(true);
+        }
+
+        /// Buttons and their functionality
+        public void createButtons() {
+            buttonPanel = new JPanel();
             buttonPanel.setLayout(new FlowLayout());
             buttonPanel.setVisible(true);
-            this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom
-
 
             // Add a refresh button. Make sure it calls refresh.
 
@@ -191,69 +267,35 @@ public class WebCrawlerMain {
             ButtonUtils.addButton(buttonPanel, "Stop", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                   executor.shutdown();
+                    executor.shutdown();
                     System.exit(0); //// Might be a sloppy implementation
                 }
             });
+        }
+
+        /// ScrollPane to store the table
+        public void createScrollPanePanel() {
+            /// New panel for holding scrollpane so we can position things better
+            scrollPane = new ScrollPane();
+            scrollPaneHolder = new JPanel();
+
+            scrollPaneHolder.setLayout(new BorderLayout());
+            scrollPaneHolder.add(header, BorderLayout.NORTH);
+            scrollPaneHolder.add(scrollPane, BorderLayout.CENTER);
 
 
-            /////// Used to test table.
-            ArrayList<String> dikkepaska = new ArrayList<String>();
-            String a = "1";
-            String b = "1555";
-            String c = "https:///testi.com";
-            Collections.addAll(dikkepaska, a, b, c);
+            scrollPane.add(vertexList); /// Add the table to the scrollable pane
+        }
 
+        /// Panel to hold the statistics
+        public void createStatsPanel() {
+            // Create vertex table. Create Statistics Overview panel.
+            // Use a Grid Layout to put the Statistics Overview on. I used
+            // 5 by 5 to have some layouting.
 
-
-            vertexList = new JTable(new DefaultTableModel());
-            DefaultTableModel model = (DefaultTableModel) vertexList.getModel();
-
-            vertexList.setVisible(true);
-
-            /// Column names (first row) find better implementation and try with scrollpane.
-            model.addColumn("#");
-            model.addColumn("Degree");
-            model.addColumn("URL");
-
-            /// Get header so we can set column names to visible
-            JTableHeader header = vertexList.getTableHeader();
-            header.setVisible(true);
-
-            ///model.addRow(columnNames);
-            //// Testing scrollpane
-            for (int i = 0; i < 50; i++) {
-                model.addRow(dikkepaska.toArray());
-            }
-
-
-            /// Add table to scrollpane so you can scroll through the URLs
-            ScrollPane scrollPane = new ScrollPane();
-
-
-            /// New panel for scrollpane so we can position things better
-            JPanel panel = new JPanel();
-            this.add(panel, BorderLayout.CENTER);
-            panel.setLayout(new BorderLayout());
-            panel.add(header, BorderLayout.NORTH);
-            panel.add(scrollPane, BorderLayout.CENTER);
-
-
-            scrollPane.add(vertexList);
-
-
-            Panel statsPanel = new Panel();
+            statsPanel = new JPanel();
             statsPanel.setVisible(true);
             statsPanel.setLayout(new GridLayout(5, 5));
-
-            /// TextFields for OverView, replace Strings with appropriate getX() methods
-            JTextField vertices = new JTextField("test");
-            JTextField edges = new JTextField("edges");
-            JTextField ev = new JTextField("555555");
-            JTextField bandwidth = new JTextField("Bandwidth");
-
-            this.add(statsPanel, BorderLayout.NORTH);
-
 
             //// Add new labels and the textfields to the panel
             statsPanel.add(new JLabel("# Vertices"));
@@ -262,16 +304,13 @@ public class WebCrawlerMain {
             statsPanel.add(edges);
             statsPanel.add(new JLabel("Edge / Vertice"));
             statsPanel.add(ev);
+            statsPanel.add(new JLabel("# Threads"));
+            statsPanel.add(threads);
             statsPanel.add(new JLabel("Bandwith"));
             statsPanel.add(bandwidth);
-
-
-            // Create vertex table. Create Statistics Overview panel.
-            // Use a Grid Layout to put the Statistics Overview on. I used
-            // 5 by 5 to have some layouting.
-
         }
 
+        /// Refresh UI (table)
         public void refresh() {
             // Refresh the content of the table. The call the TablePacker.
             vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
@@ -282,5 +321,8 @@ public class WebCrawlerMain {
 
         }
 
+
     }
+
+
 }
