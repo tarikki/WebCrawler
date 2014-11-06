@@ -31,7 +31,7 @@ public class EdgeSeekerTester {
         vertexMonitor();
         try {
             CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
-            Vertex startVertex = new Vertex("http://www.theguardian.com/uk");
+            Vertex startVertex = new Vertex("http://www.marktplaats.nl/");
 
             internetModel.addVertex(startVertex);
             edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);

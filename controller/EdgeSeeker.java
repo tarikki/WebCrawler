@@ -79,7 +79,7 @@ public class EdgeSeeker implements Runnable {
 //                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
                         if (internetModel.getVertices().contains(newVertex)) {
                             newVertex = internetModel.getVertexByName(newVertex);
-                            internetModel.addVertex(newVertex);
+//                            internetModel.addVertex(newVertex);
                             internetModel.addEdge(source, newVertex);
                         } else {
                             internetModel.addVertex(newVertex);

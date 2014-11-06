@@ -45,9 +45,9 @@ public class WebCrawlerMain {
 
 
     public static List<Vertex> showingList;
-    public int vertices;
-    public int edges;
-    public float ratio;
+    public String verticesNumber;
+    public String edgesNumber;
+    public String ratioNumber;
 
     int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
@@ -61,7 +61,7 @@ public class WebCrawlerMain {
         // The Runnable should create the actual frame and set it to visible
         try {
             startCrawling();
-            stopCrawling();
+//            stopCrawling();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,9 +139,9 @@ public class WebCrawlerMain {
 
     public void copyInfo(){
         showingList = internetModel.copyShowingList();
-        ratio = internetModel.getRatioEV();
-        vertices = internetModel.getNumberOfVertices();
-        edges = internetModel.getNumberOfEdges();
+        ratioNumber = Float.toString(internetModel.getRatioEV());
+        verticesNumber = Integer.toString(internetModel.getNumberOfVertices());
+        edgesNumber = Integer.toString(internetModel.getNumberOfEdges());
     }
 
 
@@ -227,19 +227,19 @@ public class WebCrawlerMain {
             this.add(buttonPanel, BorderLayout.SOUTH); /// Add the buttons at the bottom of the frame
 
             /////// Used to test table
-            ArrayList<String> dikkepaska = new ArrayList<String>();
-            String a = "1";
-            String b = "1555";
-            String c = "https:///testi.com";
-            Collections.addAll(dikkepaska, a, b, c);
-
-
-
-
-            //// Testing scrollpane. . ADD THE NECESSARY DATA HERE!!!!!!
-            for (int i = 0; i < 50; i++) {
-                model.addRow(dikkepaska.toArray());
-            }
+//            ArrayList<String> dikkepaska = new ArrayList<String>();
+//            String a = "1";
+//            String b = "1555";
+//            String c = "https:///testi.com";
+//            Collections.addAll(dikkepaska, a, b, c);
+//
+//
+//
+//
+//            //// Testing scrollpane. . ADD THE NECESSARY DATA HERE!!!!!!
+//            for (int i = 0; i < 50; i++) {
+//                model.addRow(dikkepaska.toArray());
+//            }
 
 
         }
@@ -321,10 +321,10 @@ public class WebCrawlerMain {
             statsPanel.setLayout(new GridLayout(5, 5));
 
             /// TextFields for OverView, replace Strings with appropriate getX() methods
-            JTextField vertices = new JTextField("test");
-            JTextField edges = new JTextField("edges");
-            JTextField ev = new JTextField("555555");
-            JTextField bandwidth = new JTextField("Bandwidth");
+            vertices = new JTextField("test");
+            edges = new JTextField("edges");
+            ev = new JTextField("555555");
+            bandwidth = new JTextField("Bandwidth");
 
             this.add(statsPanel, BorderLayout.NORTH);
 
@@ -353,6 +353,15 @@ public class WebCrawlerMain {
             // Refresh the content of the table. The call the TablePacker.
             vertexList.repaint(); /// REFRESH THE LIST (AKA THE TABLE)
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
+            copyInfo();
+            for (Vertex vertex : showingList) {
+                String[] row = {Integer.toString(vertex.getNumberOfTargetedBys()), Integer.toString(vertex.getNumberOfEdges()), vertex.getName()};
+                model.addRow(row);
+            }
+            vertices.setText(verticesNumber);
+            edges.setText(edgesNumber);
+            ev.setText(ratioNumber);
+            bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
             /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
             /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
             /// TEST COMMENT FOR GIT!!!!
