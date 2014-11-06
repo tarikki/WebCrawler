@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the main Swing class building the GUI
@@ -61,7 +62,6 @@ public class WebCrawlerMain {
         // The Runnable should create the actual frame and set it to visible
         try {
             startCrawling();
-//            stopCrawling();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,6 +132,12 @@ public class WebCrawlerMain {
         //
         // After that, write the graph to a file and exit the whole application
         executor.shutdown();
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } databaseThread.writeAllWorkAtHand();
+        System.exit(0);
 //		internetModel.writeGraph();
 //		databaseThread.writeAllWorkAtHand();
 
@@ -255,7 +261,9 @@ public class WebCrawlerMain {
         }
 
         /// Table that stores URL & degrees
+
         public void createTable() {
+
             vertexList = new JTable(new DefaultTableModel());
             model = (DefaultTableModel) vertexList.getModel();
 
@@ -290,8 +298,14 @@ public class WebCrawlerMain {
             ButtonUtils.addButton(buttonPanel, "Stop", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    executor.shutdown();
-                    System.exit(0); //// Might be a sloppy implementation
+                    try {
+                        stopCrawling();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    } catch (UnsupportedEncodingException e1) {
+                        e1.printStackTrace();
+                    }
+
                 }
             });
         }

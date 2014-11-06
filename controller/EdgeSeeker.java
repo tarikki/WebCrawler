@@ -65,7 +65,7 @@ public class EdgeSeeker implements Runnable {
 
     @Override
     public void run() {
-
+if (!executor.isShutdown()){
         try {
 //            System.out.println(source.getName());
             ArrayList<String> anchors = URLUtil.getAnchors(source.getName(), internetModel);
@@ -98,7 +98,7 @@ public class EdgeSeeker implements Runnable {
                             executor.execute(edgeSeeker);
                         }
 
-                       // System.out.println("alreadyunder "+ alreadyUnderExamination.size());
+                       System.out.println("alreadyunder "+ alreadyUnderExamination.size());
                         alreadyUnderExamination.add(newVertex);
 
                     }
@@ -110,5 +110,7 @@ public class EdgeSeeker implements Runnable {
         }
 
 
+    }else {
+databaseThread.storeWorkAtHand(source);}
     }
 }
