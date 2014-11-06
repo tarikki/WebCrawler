@@ -31,6 +31,12 @@ public class Vertex implements Comparable<Vertex> {
         // Strip the URL to remove all non-specific information such as parameters or anchors
     }
 
+    public Vertex(Vertex anotherVertex){
+        this.name = anotherVertex.name;
+        this.targetedBy = anotherVertex.targetedBy;
+        this.numberOfEdges = anotherVertex.numberOfEdges;
+    }
+
     public String getName() {
         return name;
     }

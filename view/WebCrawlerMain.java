@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,6 +40,12 @@ public class WebCrawlerMain {
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
     public static URLUtil urlUtil = new URLUtil();
 
+
+    public static List<Vertex> showingList;
+    public int vertices;
+    public int edges;
+    public float ratio;
+
     int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
 
@@ -50,8 +57,8 @@ public class WebCrawlerMain {
         // Here, create a new Runnable to insert into the EventQueue
         // The Runnable should create the actual frame and set it to visible
         try {
-            startCrawling();
-            stopCrawling();
+//            startCrawling();
+//            stopCrawling();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -126,6 +133,15 @@ public class WebCrawlerMain {
 //		databaseThread.writeAllWorkAtHand();
 
     }
+
+    public void copyInfo(){
+        showingList = internetModel.copyShowingList();
+        ratio = internetModel.getRatioEV();
+        vertices = internetModel.getNumberOfVertices();
+        edges = internetModel.getNumberOfEdges();
+    }
+
+    pucli 
 
     class VerticesFrame extends JFrame {
         // A JFrame used to host the Statistics Panel
@@ -282,5 +298,12 @@ public class WebCrawlerMain {
 
         }
 
+        public void showVertices(){
+
+        }
+
+
     }
+
+
 }

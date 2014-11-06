@@ -5,11 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import util.StatisticsCallback;
 
@@ -21,7 +17,7 @@ public class Graph implements StatisticsCallback {
 	private int highestAmountOfEdges = 0; // The highest number of connections a Vertex has as the target
 	private Vertex topVertex = null; // The vertex having the most links to it
 	private List<Vertex> showingList = new ArrayList<Vertex>();
-	
+
 	public Graph() {
 		vertices = new TreeSet<Vertex>();
 		edges = new HashSet<Edge>();
@@ -33,6 +29,13 @@ public class Graph implements StatisticsCallback {
 	public Vertex getVertexByName(Vertex vertex){
 		return showingList.get(showingList.indexOf(vertex));
 
+	}
+
+	public synchronized List<Vertex> copyShowingList(){
+		List<Vertex> clone = new ArrayList<Vertex>(showingList.size());
+		for (Vertex vertex : showingList) {
+			clone.add(new Vertex(vertex));
+		} return clone;
 	}
 
 	public synchronized void addVertex(Vertex newVertex) {
