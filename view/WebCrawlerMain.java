@@ -130,7 +130,7 @@ public class WebCrawlerMain {
         // After that, write the graph to a file and exit the whole application
         executor.shutdown();
         try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
+            executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
