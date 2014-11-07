@@ -57,13 +57,13 @@ public class WebCrawlerMain {
     }
 
     public WebCrawlerMain() {
-        // Here, create a new Runnable to insert into the EventQueue
-        // The Runnable should create the actual frame and set it to visible
-        try {
-            startCrawling();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        // Here, create a new Runnable to insert into the EventQueue
+//        // The Runnable should create the actual frame and set it to visible
+//        try {
+//            startCrawling();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 
         EventQueue.invokeLater(new Runnable() {
@@ -319,12 +319,12 @@ public class WebCrawlerMain {
 
         /// TextFields for Statistics overview
         public void createTextFields() {
-            vertices = new JTextField(String.valueOf(internetModel.getNumberOfVertices()));
-            edges = new JTextField(String.valueOf(internetModel.getNumberOfEdges()));
-            eVV = String.valueOf(internetModel.getNumberOfEdges() / internetModel.getNumberOfVertices());
-            ev = new JTextField(eVV);
-            threads = new JTextField(String.valueOf(Thread.activeCount()));
-            bandwidth = new JTextField(MemoryUtil.readableFileSize((internetModel.getBandwidthUsed())));
+            vertices = new JTextField(String.valueOf(0));
+            edges = new JTextField(String.valueOf(0));
+            eVV = String.valueOf(String.valueOf(0));
+            ev = new JTextField(String.valueOf(0));
+            threads = new JTextField(String.valueOf(0));
+            bandwidth = new JTextField(String.valueOf(0));
         }
 
         /// Table that stores URL & degrees
@@ -356,7 +356,11 @@ public class WebCrawlerMain {
             ButtonUtils.addButton(buttonPanel, "Start", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    refresh();
+                    try {
+                        startCrawling();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
                 }
             });
 
