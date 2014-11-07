@@ -32,10 +32,10 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class WebCrawlerMain {
-    public static ConfigUtil config = new ConfigUtil();
-    private static ExecutorService executor = Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
-    private static Graph internetModel = new Graph(config);
-    private static DatabaseThread databaseThread = new DatabaseThread(internetModel, config);
+    public static ConfigUtil config;
+    private static ExecutorService executor; //= Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
+    private static Graph internetModel;
+    private static DatabaseThread databaseThread;
 
     //// Changed value of these so we have the same size UI regardless of user's screen.
     public static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
@@ -44,10 +44,10 @@ public class WebCrawlerMain {
 
 
     public static SortedSet<Vertex> allVertices = new TreeSet<>();
-    public String verticesNumber;
-    public String edgesNumber;
-    public String ratioNumber;
-    public String memUsage;
+    public String verticesNumber = "0";
+    public String edgesNumber = "0";
+    public String ratioNumber = "0";
+    public String memUsage = "0";
     private JMenu menu;
     private JMenuBar menuBar;
     private java.util.Timer timer = new java.util.Timer();
@@ -61,10 +61,13 @@ public class WebCrawlerMain {
     }
 
     public void startYourEngines(){
+        config = new ConfigUtil();
+        internetModel = new Graph(config);
+        databaseThread = new DatabaseThread(internetModel, config);
     }
 
     public WebCrawlerMain() {
-//        startYourEngines();
+        startYourEngines();
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -79,9 +82,6 @@ public class WebCrawlerMain {
 
     }
 
-    public void stopRequest() throws FileNotFoundException, UnsupportedEncodingException {
-        // Implement a neat way to stop
-    }
 
     public void startCrawling() throws Exception {
         // Start the simple statistics viewer
@@ -91,7 +91,9 @@ public class WebCrawlerMain {
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
-        Vertex startVertex = new Vertex("http://www.uusisuomi.fi");
+
+        executor = Executors.newFixedThreadPool(config.getMAX_THREADS());
+        Vertex startVertex = new Vertex(config.getDEFAULT_START());
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
 
@@ -499,7 +501,7 @@ public class WebCrawlerMain {
             vertices = new JTextField(String.valueOf(verticesNumber));
             edges = new JTextField(String.valueOf(edgesNumber));
             ev = new JTextField(String.valueOf(ratioNumber));
-            bandwidth = new JTextField(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
+            bandwidth = new JTextField(memUsage);
 
             this.add(statsPanel, BorderLayout.NORTH);
 
