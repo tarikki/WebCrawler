@@ -81,6 +81,7 @@ public class EdgeSeeker implements Runnable {
                             // if the graph contains the page, only add a new edge
                             if (!alreadyUnderExamination.contains(newVertex)) {
                                 if (present) {
+
                                     internetModel.addEdge(source, newVertex);
                                 } else { // else add the vertex too
                                     internetModel.addVertex(newVertex);
@@ -110,7 +111,8 @@ public class EdgeSeeker implements Runnable {
 
 
         } else {
-            //Oh Executor shutdown? Add the work at hand to the temp storage so it can be taken care of
+            //Oh Executor shutdown while we were doing other stuff?
+            // Add the work at hand to the temp storage so it can be taken care of
             databaseThread.storeWorkAtHand(source);
         }
     }

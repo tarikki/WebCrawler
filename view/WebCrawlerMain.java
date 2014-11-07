@@ -89,7 +89,7 @@ public class WebCrawlerMain {
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
-        Vertex startVertex = new Vertex("http://www.theguardian.com/uk");
+        Vertex startVertex = new Vertex("http://www.reddit.com/");
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
         executor.execute(edgeSeeker);
