@@ -16,19 +16,10 @@ public class Vertex implements Comparable<Vertex> {
     private Set<Edge> targetedBy = new HashSet<Edge>();
     private int numberOfEdges = 0;
 
-    public Vertex(String name) throws VertexUnreachableException, VertexInvalidException {
+    public Vertex(String name) {
 
         this.name = name;
 
-        // Some protocol is necessary. If there's none, add http as the default.
-
-        // Now check for mailto, as we do not want these as a valid vertex
-
-        // Start by checking the validity and reachability of the site provided. If it is not,
-        // throw a VertexUnreachableException. Make sure to add a clear message to the exception.
-
-
-        // Strip the URL to remove all non-specific information such as parameters or anchors
     }
 
     public Vertex(Vertex anotherVertex){

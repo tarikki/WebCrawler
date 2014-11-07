@@ -2,13 +2,11 @@ package view;
 
 import controller.DatabaseThread;
 import controller.EdgeSeeker;
-import model.Constants;
 import model.Graph;
 import model.Vertex;
 import util.ButtonUtils;
 import util.MemoryUtil;
 import util.TablePacker;
-import util.URLUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,10 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class WebCrawlerMain {
-    private static ExecutorService executor = Executors.newFixedThreadPool(2); // Here, define some nice way of using a thread pool
+    private static ExecutorService executor = Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
     private static Graph internetModel = new Graph();
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
 
@@ -46,11 +41,11 @@ public class WebCrawlerMain {
     public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
 
 
-
-    public static List<Vertex> showingList;
+    public static SortedSet<Vertex> allVertices = new TreeSet<>();
     public String verticesNumber;
     public String edgesNumber;
     public String ratioNumber;
+    public String memUsage;
 
     int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
@@ -64,7 +59,6 @@ public class WebCrawlerMain {
         // The Runnable should create the actual frame and set it to visible
         try {
             startCrawling();
-//            stopCrawling();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,18 +133,25 @@ public class WebCrawlerMain {
             executor.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } databaseThread.writeAllWorkAtHand();
+        }
+        databaseThread.writeAllWorkAtHand();
         System.exit(0);
 //		internetModel.writeGraph();
 //		databaseThread.writeAllWorkAtHand();
 
     }
 
-    public void copyInfo(){
-        showingList = internetModel.copyShowingList();
+    public void copyInfo() {
+        allVertices.addAll(internetModel.copyChangedList());
+        copyTopInfo();
+    }
+
+    public void copyTopInfo() {
+
         ratioNumber = Float.toString(internetModel.getRatioEV());
         verticesNumber = Integer.toString(internetModel.getNumberOfVertices());
         edgesNumber = Integer.toString(internetModel.getNumberOfEdges());
+        memUsage = MemoryUtil.readableFileSize(internetModel.getBandwidthUsed());
     }
 
 
@@ -296,7 +297,7 @@ public class WebCrawlerMain {
             ButtonUtils.addButton(buttonPanel, "Stop", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                   try {
+                    try {
                         stopCrawling();
                     } catch (FileNotFoundException e1) {
                         e1.printStackTrace();
@@ -331,12 +332,12 @@ public class WebCrawlerMain {
 
         }
 
-        public void addtoTable(Graph finalModel) {
-            List<Vertex> asd = finalModel.copyShowingList();
-            for (int i = 0; i < 50; i++) {
-                model.addRow(asd.toArray());
-            }
-        }
+//        public void addtoTable(Graph finalModel) {
+//            SortedSet<Vertex> asd = finalModel.copyChangedList();
+//            for (int i = 0; i < 50; i++) {
+//                model.addRow(asd.toArray());
+//            }
+//        }
 
         /// Panel to hold the statistics
         public void createStatsPanel() {
@@ -381,7 +382,7 @@ public class WebCrawlerMain {
             // Refresh the content of the table. The call the TablePacker.
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
             copyInfo();
-            for (Vertex vertex : showingList) {
+            for (Vertex vertex : allVertices) {
                 String[] row = {Integer.toString(vertex.getNumberOfTargetedBys()), Integer.toString(vertex.getNumberOfEdges()), vertex.getName()};
                 model.addRow(row);
                 model.fireTableDataChanged(); // Update the table!
@@ -391,11 +392,7 @@ public class WebCrawlerMain {
             new TablePacker(TablePacker.VISIBLE_ROWS, true).pack(vertexList);
 
 
-            vertices.setText(verticesNumber);
-            edges.setText(edgesNumber);
-            ev.setText(ratioNumber);
-            threads.setText(String.valueOf(Thread.activeCount()));
-            bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
+            refreshUp();
 
         }
 
@@ -403,21 +400,21 @@ public class WebCrawlerMain {
             /// @TODO look for a better way to implement threadcount
             ThreadGroup currentGroup = Thread.currentThread().getThreadGroup();
             int noThreads = currentGroup.activeCount();
+
+            copyTopInfo();
             vertices.setText(verticesNumber);
             edges.setText(edgesNumber);
             ev.setText(ratioNumber);
             threads.setText(String.valueOf(noThreads));
-
-            bandwidth.setText(MemoryUtil.readableFileSize(internetModel.getBandwidthUsed()));
+            bandwidth.setText(memUsage);
 
         }
-
 
 
         /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
-            /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
-            /// TEST COMMENT FOR GIT!!!!
+        /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
+        /// TEST COMMENT FOR GIT!!!!
 
-        }
     }
+}
 

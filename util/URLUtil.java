@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class URLUtil {
 
-    //    private static Pattern pattern = Pattern.compile("(?<=\\.)\\w*$");
+//    private static Pattern pattern = Pattern.compile("(?<=\\.)\\w*$");
 //    private static Pattern hrefPattern = Pattern.compile("(?<=<a href=\").*(?=\")");
 //    private static Pattern hrefPattern = Pattern.compile("a href=\"(.*?)\"");
 //    private static Pattern mailtoPattern = Pattern.compile("^mailto:");
@@ -46,49 +46,50 @@ public class URLUtil {
      */
     public static String stripURL(String name) {
         String protocol = "";
-        String host = null;
-        String path;
+        String host = "";
+        String path = "";
+
         URL anURL = null;
         String result = null;
-//        System.out.println(name + " " + (name==null) + name.length());
+
+        // remove spaces
         name = name.replaceAll(" ", "");
+
+        // if the name is empty, don't even bother checking the rest and just return null
         if (name.length() == 0) {
             return result;
         }
 
+
+        // if there is no pattern to indicate the presence of a protocol, give it one
         if (!protocolPattern.matcher(name).find()) {
             name = "http://" + name;
-//            System.out.println("No Protocol!");
+
         }
+
+        //get the necessary info
         try {
-//            System.out.println(name.length());
             anURL = new URL(name);
             protocol = anURL.getProtocol();
+            path = anURL.getPath();
+            host = anURL.getHost();
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-//        if (anURL.getHost() == null){
-//            return host;
-//        } else{
-        host = anURL.getHost();
-//        }
-        if (!protocol.equals("mailto") && !protocol.equals("ftp") && !protocol.equals("")) { //if not mailto, return address. Otherwise keep the result as null
 
-
-            path = anURL.getPath();
+        // let's ditch some protocols straight away and build the url from basics without all the unnecessary stuff
+        if (!protocol.equals("mailto") && !protocol.equals("ftp") && !protocol.equals("")) {
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(protocol);
             stringBuilder.append("://");
             stringBuilder.append(host);
             stringBuilder.append(path);
-//        System.out.println(stringBuilder);
+
             result = stringBuilder.toString();
         }
-
-//        if (result.equals("http://")) System.out.println("gothca!");
-
         return result;
     }
 
@@ -105,42 +106,42 @@ public class URLUtil {
      * Checks whether a given URL is actually reachable (i.e. whether a connection can be established)
      * If an URL could not be reached, just return false, do not throw any Exception here
      *
-     * @param anURL anURL the String representation of the URL to check for
+     *  anURL anURL the String representation of the URL to check for
      * @return boolean true if a connection could be established, false otherwise
      */
 
 
-    public static boolean isReachableURL(String anURL) throws IOException {
-        //System.out.println(anURL);
-
-        if (anURL == null) return false; // if no url, don't bother checking
-
-        int response = 400;
-        try {
-//            anURL = anURL.replace("https", "http");
-            HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
-            connection.setRequestMethod("HEAD");
-            connection.setConnectTimeout(5000); //// Set timeout to 5s (may be too long?)
-            response = connection.getResponseCode();
-//            System.out.println(response);
-        } catch (IOException | ClassCastException e) {
-//            e.printStackTrace();
-//            System.out.println(e.getClass().toString());
-            System.out.println("This did not work: " + anURL);
-            if (e.getClass().toString().equals("class java.net.SocketException")) {
-                System.out.println("BitchServer on: " + anURL);
-            }
-
-
-        }
-        if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
-        {
-            return true;
-        } else {
-            System.out.println(anURL + " IS LE FUCKED! HTTP response " + response);
-            return false;
-        }
-    }
+//    public static boolean isReachableURL(String anURL) throws IOException {
+//        //System.out.println(anURL);
+//
+//        if (anURL == null) return false; // if no url, don't bother checking
+//
+//        int response = 400;
+//        try {
+////            anURL = anURL.replace("https", "http");
+//            HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
+//            connection.setRequestMethod("HEAD");
+//            connection.setConnectTimeout(5000); //// Set timeout to 5s (may be too long?)
+//            response = connection.getResponseCode();
+////            System.out.println(response);
+//        } catch (IOException | ClassCastException e) {
+////            e.printStackTrace();
+////            System.out.println(e.getClass().toString());
+//            System.out.println("This did not work: " + anURL);
+//            if (e.getClass().toString().equals("class java.net.SocketException")) {
+//                System.out.println("BitchServer on: " + anURL);
+//            }
+//
+//
+//        }
+//        if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
+//        {
+//            return true;
+//        } else {
+//            System.out.println(anURL + " IS LE FUCKED! HTTP response " + response);
+//            return false;
+//        }
+//    }
 
     private static boolean isReachableJSoup(Connection connection, String url) {
         int response = 400;
@@ -171,36 +172,8 @@ public class URLUtil {
     }
 
 
-    /**
-     * This method connects to a given URL and retrieves the webpage behind it. It assumes an URL is
-     * reachable; if not, it throws an Exception
-     * The method also keeps track of the amount of data retrieved using the StatisticsCallback interface
-     *
-     * @param anURL anURL the String representation of the URL to be retrieved
-     * @return String the retrieved webpage as one String
-     * @throws IOException if anything goes wrong retrieving the page
-     */
 
-//    public static String getURLContent(String anURL) throws IOException {
-//        //TODO put the statistic callback back in the this method
-//        URL urlObj = new URL(anURL);
-//        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
-//        con.setRequestMethod("GET");
-////        int responseCode = con.getResponseCode();
-////        System.out.println("Response " + responseCode);
-//        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-//        String inputLine;
-//        StringBuilder response = new StringBuilder();
-//        while ((inputLine = in.readLine()) != null) {
-//            response.append(inputLine);
-//            response.append("\n");
-//        }
-//        in.close();
-////        System.out.println(response.toString());
-//
-//
-//        return response.toString();
-//    }
+
 
     /**
      * This method gets a webpage in the form of a String and retrieves all anchors in it.

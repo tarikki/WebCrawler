@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import model.Graph;
 import model.Vertex;
@@ -40,6 +42,7 @@ public class EdgeSeeker implements Runnable {
     private Vertex source;
     private ExecutorService executor;
     private DatabaseThread databaseThread;
+    private static final Lock lock = new ReentrantLock();
 //    private static Set<Vertex> alreadyUnderExamination = Collections.synchronizedSet(new HashSet<>());
 //    private static SynchornizedHashSet<Vertex> alreadyUnderExamination = new SynchornizedHashSet<>();
     private volatile Set<Vertex> alreadyUnderExamination = new HashSet<Vertex>();
@@ -52,7 +55,7 @@ public class EdgeSeeker implements Runnable {
         this.source = source;
         this.executor = executor;
         this.databaseThread = databaseThread;
-        alreadyUnderExamination.remove(source);
+
     }
 
     public void storeSource() {
@@ -67,45 +70,39 @@ public class EdgeSeeker implements Runnable {
     public void run() {
 if (!executor.isShutdown()){
         try {
-//            System.out.println(source.getName());
             ArrayList<String> anchors = URLUtil.getAnchors(source.getName(), internetModel);
             for (String anchor : anchors) {
                 String cleanAnchor = URLUtil.stripURL(anchor);
-
                 if (cleanAnchor != null) {
+                    //We want these operations to be atomic so only one vertex will be created per webpage
+                    synchronized (lock){
                     Vertex newVertex = new Vertex(cleanAnchor);
-//                    System.out.println(internetModel.getVertices().contains(newVertex));
                     boolean present = internetModel.getVertices().contains(newVertex);
-//                    System.out.print(present);
                     if (!alreadyUnderExamination.contains(newVertex)) {
-//                        System.out.println("Adding " + cleanAnchor);
-//                        System.out.println("Vertices: " + internetModel.getNumberOfVertices());
-//                        System.out.println("Edges: " + internetModel.getNumberOfEdges());
-//                        System.out.println(internetModel.getVertices().contains(newVertex));
-//                        System.out.println(present + " so go there!");
-
                         if (present) {
-
-//                            System.out.println("Fuck this shisishit!!");
-//                            System.out.println("Vertices: " + internetModel.getNumberOfVertices() + ", Edges: " + internetModel.getNumberOfEdges());
-//                            newVertex = internetModel.getVertexByName(newVertex);
-//                            internetModel.addVertex(newVertex);
                             internetModel.addEdge(source, newVertex);
                         } else {
                             internetModel.addVertex(newVertex);
                             internetModel.addEdge(source, newVertex);
-                            EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
-                            executor.execute(edgeSeeker);
-                        }
 
-                       System.out.println("alreadyunder "+ alreadyUnderExamination.size());
-                        alreadyUnderExamination.add(newVertex);
+
+
+                            EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
+                            alreadyUnderExamination.add(newVertex);
+
+                            //if executor has not shutdown, submit job
+                            if (!executor.isShutdown()){
+                            executor.execute(edgeSeeker);}}
+
+                        }
+                        System.out.println("already under: " + alreadyUnderExamination.size());
+
 
                     }
                 }
 
-            }
-        } catch (IOException | VertexInvalidException | VertexUnreachableException e) {
+            }         alreadyUnderExamination.remove(source);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

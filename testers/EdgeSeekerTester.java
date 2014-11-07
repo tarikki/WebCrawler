@@ -29,7 +29,7 @@ public class EdgeSeekerTester {
     public static void main(String[] args) {
         EdgeSeeker edgeSeeker = null;
         vertexMonitor();
-        try {
+
             CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
             Vertex startVertex = new Vertex("http://www.marktplaats.nl/");
 
@@ -37,11 +37,8 @@ public class EdgeSeekerTester {
             edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
             executor.execute(edgeSeeker);
 
-        } catch (VertexUnreachableException | VertexInvalidException e) {
-            e.printStackTrace();
 
 
-        }
     }
 
 
