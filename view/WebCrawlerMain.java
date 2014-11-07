@@ -249,6 +249,18 @@ public class WebCrawlerMain {
                 }
             });
             menu.add(pathtoSave);
+
+            /// Setting amount of threads @ start
+            JMenuItem amountThreads = new JMenuItem("Select the amount of threads to use");
+            amountThreads.setBackground(Color.black);
+            amountThreads.setForeground(Color.white);
+            amountThreads.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    createStartingThreadsOptionPane();
+                }
+            });
+            menu.add(amountThreads);
         }
 
         public void createPathOptionPane() {
@@ -270,6 +282,16 @@ public class WebCrawlerMain {
             startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:", startingSite);
             config.setDEFAULT_START(startingSite);
 
+        }
+
+        public void createStartingThreadsOptionPane()
+        {
+           String startingThreads = config.getDEFAULT_START();
+            JOptionPane setStartingThreads = new JOptionPane();
+            setStartingThreads.setVisible(true);
+            setStartingThreads.setValue("asdf");
+            startingThreads = setStartingThreads.showInputDialog(this, "Enter the starting web site:", startingThreads);
+            //config.setDEFAULT_START(setStartingThreads);
         }
     }
 
