@@ -36,9 +36,9 @@ public class WebCrawlerMain {
     private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
 
     //// Changed value of these so we have the same size UI regardless of user's screen.
-    public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    public static final int DEFAULT_WIDTH = screenSize.width * 2 / 3;
-    public static final int DEFAULT_HEIGHT = screenSize.height * 2 / 3;
+    public static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+    public static final int DEFAULT_WIDTH = SCREEN_SIZE.width * 2 / 3;
+    public static final int DEFAULT_HEIGHT = SCREEN_SIZE.height * 2 / 3;
 
 
     public static SortedSet<Vertex> allVertices = new TreeSet<>();
@@ -48,9 +48,10 @@ public class WebCrawlerMain {
     public String memUsage;
     private JMenu menu;
     private JMenuBar menuBar;
+    private java.util.Timer timer = new java.util.Timer();
+    private java.util.Timer timer2 = new java.util.Timer();
+    private final StatisticsPanel statisticsPanel = new StatisticsPanel();
 
-    int height = screenSize.height * 2 / 3;
-    //int width = screenSize.width * (2 / 3);
 
     public static void main(String[] args) {
         new WebCrawlerMain();
@@ -91,11 +92,34 @@ public class WebCrawlerMain {
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
-        Vertex startVertex = new Vertex("http://www.aamulehti.fi/");
+        Vertex startVertex = new Vertex("http://www.uusisuomi.fi");
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
-        executor.execute(edgeSeeker);
 
+        executor.execute(edgeSeeker);
+        // The following code can be kept here. It makes sure refresh is called every three seconds.
+        statisticsPanel.refresh();
+        timer = new java.util.Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                /// Refresh every 10 seconds
+                statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
+            }
+        }, 5000, 5000);
+
+
+        /// Timer for stats overview
+        timer2 = new java.util.Timer();
+        timer2.schedule(new TimerTask() {
+            @Override
+            public void run() {
+
+                /// Refresh every 2 seconds
+                statisticsPanel.refreshUp(); // Insert a call to the refresh method here. Make sure to do the casting.
+
+            }
+        }, 2000, 2000);
     }
 
     public boolean readWorkAtHand() throws Exception {
@@ -131,8 +155,12 @@ public class WebCrawlerMain {
         //
         // After that, write the graph to a file and exit the whole application
         executor.shutdown();
+
         try {
+            timer.cancel(); /// Cancel timer for refreshing table
+            timer2.cancel(); /// Cancel timer for refreshing stats
             executor.awaitTermination(5, TimeUnit.SECONDS);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -176,39 +204,15 @@ public class WebCrawlerMain {
             this.setTitle("Web Crawler");
             this.setLayout(new BorderLayout());
 
-            final StatisticsPanel statisticsPanel = new StatisticsPanel(); /// Needs to be final so we can use it with the timer below
+
             statisticsPanel.setVisible(true);
             this.add(statisticsPanel, BorderLayout.CENTER); //// Add the actual UI to the center of the main frame
-
-
-            // The following code can be kept here. It makes sure refresh is called every three seconds.
-            java.util.Timer timer = new java.util.Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    /// Refresh every 10 seconds
-                    statisticsPanel.refresh(); // Insert a call to the refresh method here. Make sure to do the casting.
-                }
-            }, 10000, 10000);
-
-
-            /// Timer for stats overview
-            java.util.Timer timer2 = new java.util.Timer();
-            timer2.schedule(new TimerTask() {
-                @Override
-                public void run() {
-
-                    /// Refresh every 2 seconds
-                    statisticsPanel.refreshUp(); // Insert a call to the refresh method here. Make sure to do the casting.
-
-                }
-            }, 2000, 2000);
 
 
         }
 
         public void createMenuBar() {
-            menu = new JMenu("Menu");
+            menu = new JMenu("Menu - click me for options");
             menu.setBackground(Color.black);
             menu.setForeground(Color.white);
             menuBar = new JMenuBar();
@@ -285,7 +289,6 @@ public class WebCrawlerMain {
         //// TextFields for Statistics overview
         private JTextField vertices;
         private JTextField edges;
-        private String eVV; //// Edges divided by vertices. Needs a better name!
         private JTextField ev;
         private JTextField threads;
         private JTextField bandwidth;
@@ -321,7 +324,6 @@ public class WebCrawlerMain {
         public void createTextFields() {
             vertices = new JTextField(String.valueOf(0));
             edges = new JTextField(String.valueOf(0));
-            eVV = String.valueOf(String.valueOf(0));
             ev = new JTextField(String.valueOf(0));
             threads = new JTextField(String.valueOf(0));
             bandwidth = new JTextField(String.valueOf(0));
@@ -413,12 +415,12 @@ public class WebCrawlerMain {
 
         }
 
-        public void dataConfirmed()
-        {
+        /// Dialog for confirmed save data
+        public void dataConfirmed() {
 
             JOptionPane confirmData = new JOptionPane();
             confirmData.setVisible(true);
-             confirmData.showMessageDialog(this, "Data saved successfully!");
+            confirmData.showMessageDialog(this, "Data saved successfully!");
         }
 
         /// ScrollPane to store the table
@@ -509,10 +511,6 @@ public class WebCrawlerMain {
 
         }
 
-
-        /// Not working for some reason.. Should realign the columns according to size, not make all of them equal
-        /// Probably because of auto-resizing somewhere. Works if you resize window to be smaller. But not in the initial setup..
-        /// TEST COMMENT FOR GIT!!!!
 
     }
 }
