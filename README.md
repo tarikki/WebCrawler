@@ -7,11 +7,11 @@ Friday:
 2. Save and load info on disk.
 
 
-3. Menu
+3. Menu /// DONE
 1. Threads
 2. work directory
-3. default start
-4. Sit nappi save
+3. default start /// DONE
+4. Sit nappi save /// DONE
 
 
 
