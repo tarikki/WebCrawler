@@ -1,12 +1,5 @@
 package testers;
 
-import util.IOUtil;
-
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
  * Created by extradikke on 7-11-14.
  */

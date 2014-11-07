@@ -5,6 +5,7 @@ import controller.EdgeSeeker;
 import model.Graph;
 import model.Vertex;
 import util.ButtonUtils;
+import util.ConfigUtil;
 import util.MemoryUtil;
 import util.TablePacker;
 
@@ -51,21 +52,19 @@ public class WebCrawlerMain {
     private java.util.Timer timer = new java.util.Timer();
     private java.util.Timer timer2 = new java.util.Timer();
     private final StatisticsPanel statisticsPanel = new StatisticsPanel();
+    public ConfigUtil config;
 
 
     public static void main(String[] args) {
         new WebCrawlerMain();
     }
 
-    public void startYourEngines(){
-
+    public void startYourEngines() {
+        config = new ConfigUtil();
     }
 
     public WebCrawlerMain() {
-
-
-
-
+        startYourEngines();
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -253,20 +252,23 @@ public class WebCrawlerMain {
         }
 
         public void createPathOptionPane() {
-            String path;
+            String path = config.getDEFAULT_PATH();
             JOptionPane setPathToSave = new JOptionPane();
             setPathToSave.setVisible(true);
-            path = setPathToSave.showInputDialog(this, "Enter the path to save file to:");
+            path = setPathToSave.showInputDialog(this, "Enter the path to save file to:", path);
+            System.out.println(path);
+            config.setDEFAULT_PATH(path);
 
 
         }
 
         public void createStartingSiteOptionPane() {
-            String startingSite;
+            String startingSite = config.getDEFAULT_START();
             JOptionPane setStartingSite = new JOptionPane();
             setStartingSite.setVisible(true);
-            startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:");
-            /// COMMENT FOR GIT!!!!
+            setStartingSite.setValue("asdf");
+            startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:", startingSite);
+            config.setDEFAULT_START(startingSite);
 
         }
     }
