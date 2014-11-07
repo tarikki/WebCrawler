@@ -266,7 +266,6 @@ public class WebCrawlerMain {
             String startingSite = config.getDEFAULT_START();
             JOptionPane setStartingSite = new JOptionPane();
             setStartingSite.setVisible(true);
-            setStartingSite.setValue("asdf");
             startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:", startingSite);
             config.setDEFAULT_START(startingSite);
 
