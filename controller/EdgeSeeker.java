@@ -43,10 +43,8 @@ public class EdgeSeeker implements Runnable {
     private ExecutorService executor;
     private DatabaseThread databaseThread;
     private static final Lock lock = new ReentrantLock();
-//    private static Set<Vertex> alreadyUnderExamination = Collections.synchronizedSet(new HashSet<>());
-//    private static SynchornizedHashSet<Vertex> alreadyUnderExamination = new SynchornizedHashSet<>();
-    private volatile Set<Vertex> alreadyUnderExamination = new HashSet<Vertex>();
 
+    private volatile Set<Vertex> alreadyUnderExamination = new HashSet<Vertex>();
 
 
     public EdgeSeeker(Graph internetModel, Vertex source, ExecutorService executor, DatabaseThread databaseThread) {
@@ -68,46 +66,52 @@ public class EdgeSeeker implements Runnable {
 
     @Override
     public void run() {
-if (!executor.isShutdown()){
-        try {
-            ArrayList<String> anchors = URLUtil.getAnchors(source.getName(), internetModel);
-            for (String anchor : anchors) {
-                String cleanAnchor = URLUtil.stripURL(anchor);
-                if (cleanAnchor != null) {
-                    //We want these operations to be atomic so only one vertex will be created per webpage
-                    synchronized (lock){
-                    Vertex newVertex = new Vertex(cleanAnchor);
-                    boolean present = internetModel.getVertices().contains(newVertex);
-                    if (!alreadyUnderExamination.contains(newVertex)) {
-                        if (present) {
-                            internetModel.addEdge(source, newVertex);
-                        } else {
-                            internetModel.addVertex(newVertex);
-                            internetModel.addEdge(source, newVertex);
+        // if executor is in shutdown, don't even bother starting this
+        if (!executor.isShutdown()) {
+            try {
+                ArrayList<String> anchors = URLUtil.getAnchors(source.getName(), internetModel);
+                for (String anchor : anchors) {
+                    String cleanAnchor = URLUtil.stripURL(anchor);
+                    if (cleanAnchor != null) {
 
+                        //We want these operations to be atomic so only one vertex will be created per website
+                        synchronized (lock) {
+                            Vertex newVertex = new Vertex(cleanAnchor);
+                            boolean present = internetModel.getVertices().contains(newVertex);
+                            // if the graph contains the page, only add a new edge
+                            if (!alreadyUnderExamination.contains(newVertex)) {
+                                if (present) {
+                                    internetModel.addEdge(source, newVertex);
+                                } else { // else add the vertex too
+                                    internetModel.addVertex(newVertex);
+                                    internetModel.addEdge(source, newVertex);
 
+                                    EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
+                                    alreadyUnderExamination.add(newVertex);
 
-                            EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
-                            alreadyUnderExamination.add(newVertex);
+                                    //Executor still not shutdown? Submit job!
+                                    if (!executor.isShutdown()) {
+                                        executor.execute(edgeSeeker);
+                                    }
+                                }
 
-                            //if executor has not shutdown, submit job
-                            if (!executor.isShutdown()){
-                            executor.execute(edgeSeeker);}}
+                            }
+
 
                         }
-                        System.out.println("already under: " + alreadyUnderExamination.size());
-
-
                     }
+
                 }
+                // now that all the links are crawled we can remove the page from already under
+                alreadyUnderExamination.remove(source);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            }         alreadyUnderExamination.remove(source);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        } else {
+            //Oh Executor shutdown? Add the work at hand to the temp storage so it can be taken care of
+            databaseThread.storeWorkAtHand(source);
         }
-
-
-    }else {
-databaseThread.storeWorkAtHand(source);}
     }
 }

@@ -89,7 +89,7 @@ public class WebCrawlerMain {
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
-        Vertex startVertex = new Vertex("http://hs.fi");
+        Vertex startVertex = new Vertex("http://www.theguardian.com/uk");
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
         executor.execute(edgeSeeker);
@@ -332,12 +332,6 @@ public class WebCrawlerMain {
 
         }
 
-//        public void addtoTable(Graph finalModel) {
-//            SortedSet<Vertex> asd = finalModel.copyChangedList();
-//            for (int i = 0; i < 50; i++) {
-//                model.addRow(asd.toArray());
-//            }
-//        }
 
         /// Panel to hold the statistics
         public void createStatsPanel() {

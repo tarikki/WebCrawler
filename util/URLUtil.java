@@ -111,42 +111,17 @@ public class URLUtil {
      */
 
 
-//    public static boolean isReachableURL(String anURL) throws IOException {
-//        //System.out.println(anURL);
-//
-//        if (anURL == null) return false; // if no url, don't bother checking
-//
-//        int response = 400;
-//        try {
-////            anURL = anURL.replace("https", "http");
-//            HttpURLConnection connection = (HttpURLConnection) new URL(anURL).openConnection();
-//            connection.setRequestMethod("HEAD");
-//            connection.setConnectTimeout(5000); //// Set timeout to 5s (may be too long?)
-//            response = connection.getResponseCode();
-////            System.out.println(response);
-//        } catch (IOException | ClassCastException e) {
-////            e.printStackTrace();
-////            System.out.println(e.getClass().toString());
-//            System.out.println("This did not work: " + anURL);
-//            if (e.getClass().toString().equals("class java.net.SocketException")) {
-//                System.out.println("BitchServer on: " + anURL);
-//            }
-//
-//
-//        }
-//        if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
-//        {
-//            return true;
-//        } else {
-//            System.out.println(anURL + " IS LE FUCKED! HTTP response " + response);
-//            return false;
-//        }
-//    }
+
 
     private static boolean isReachableJSoup(Connection connection, String url) {
+
+        // assume all links are bad, then improve on that assumption
         int response = 400;
+        // try connection and get possible status code
         try {
             response = connection.execute().statusCode();
+
+            //handle exceptions
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
             System.out.println(url + " IS LE FUCKED");
@@ -160,7 +135,8 @@ public class URLUtil {
             }
             return false;
         }
-        if (200 <= response && response <= 399) /// If response code is other than 200 <= response <= 399, website is unreachable
+        // anything between 200 and 399 is ok, else return false
+        if (200 <= response && response <= 399)
         {
             return true;
         } else {
@@ -187,38 +163,50 @@ public class URLUtil {
      */
 
     public static ArrayList<String> getAnchors(String anURL, StatisticsCallback callback) throws IOException {
-        //TODO put the statistic callback back in the this method
+
         ArrayList<String> result = new ArrayList<>();
         long bytes = 0;
         try {
-//            System.out.println(anURL);
-//            String cleanUrl = stripURL(anURL);
-//            System.out.println(cleanUrl);
-            Connection connection = Jsoup.connect(anURL).userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
-                    .timeout(10000).referrer("http://www.google.com");
 
+            // connect to anURL
+            Connection connection = Jsoup.connect(anURL)
+                    // tell the page what kind of encoding we're using
+                    .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
+                    // give it a timeout
+                    .timeout(10000)
+                    // lie that we arrived here by googling, so the website might not find out that we're a bot
+                    .referrer("http://www.google.com");
+
+            // if reachable, scrape
+            // we're able to use the same connection object for availability checks and scraping
+            // very handy!
             if (isReachableJSoup(connection, anURL)) {
                 Document document = connection.get();
+
+                // memory usage is only an approximation, as this depends on the character encoding
+                // and doesn't account for overhead
+                // should sit straight on the stream on OS level to get an accurate reading
+                // but writing that for this app would be overkill! :D
                 bytes += document.toString().getBytes().length;
-//        Document document = Jsoup.parse(content, "http://www.regexplanet.com/");
+
+                // get all regular links
+                // and also search inside frames (otherwise, for example, http://docs.oracle.com/javase/7/docs/api/ returns 0 links!)
+
                 Elements elements = document.select("a[href]");
                 elements.addAll(document.select("frame[src]"));
-//                System.out.println("Links on page: " + elements.size());
+
+                // loop through elements and add absolute path (another thing that JSoup has a method for)
                 for (Element element : elements) {
                     if (element.attr("abs:href") != null) result.add(element.attr("abs:href"));
                     if (element.attr("abs:src") != null) result.add(element.attr("abs:src"));
-//            System.out.println(element.attr("abs:href"));
-
                 }
             }
+            // catch errors generated by attempts to pass videos, images, etc. ass parseable links
         } catch (UnsupportedMimeTypeException e) {
             System.out.println("Can't parse " + e.getMimeType());
         }
 
-
-        // What if the stream itself could not be read. In the future, keep track of how fast this occurs.
-        // It it happens too many times in a row, end the thread pool
-        // For now, do nothing asdlkfjsadlfkj
+        // report memory usage and return all pages parsed
         callback.amountUsed(bytes);
         return result;
     }
