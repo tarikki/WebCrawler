@@ -46,6 +46,8 @@ public class WebCrawlerMain {
     public String edgesNumber;
     public String ratioNumber;
     public String memUsage;
+    private JMenu menu;
+    private JMenuBar menuBar;
 
     int height = screenSize.height * 2 / 3;
     //int width = screenSize.width * (2 / 3);
@@ -162,11 +164,14 @@ public class WebCrawlerMain {
         private static final long serialVersionUID = 1L;
 
         public VerticesFrame() {
+
             // Create the frame, add the right panel. Use a BorderLayout. Set the title.
 
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             this.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
+            createMenuBar();
+            createMenuButtons();
 
             this.setTitle("Web Crawler");
             this.setLayout(new BorderLayout());
@@ -198,6 +203,67 @@ public class WebCrawlerMain {
 
                 }
             }, 2000, 2000);
+
+
+        }
+
+        public void createMenuBar() {
+            menu = new JMenu("Menu");
+            menu.setBackground(Color.black);
+            menu.setForeground(Color.white);
+            menuBar = new JMenuBar();
+            menuBar.add(menu);
+            menuBar.setBackground(Color.black);
+            menuBar.setForeground(Color.white);
+            menuBar.setVisible(true);
+            this.setJMenuBar(menuBar);
+        }
+
+        public void createMenuButtons() {
+
+            /// Starting site
+            JMenuItem startingSite = new JMenuItem("Select starting web site");
+            startingSite.setBackground(Color.black);
+            startingSite.setForeground(Color.white);
+            menu.add(startingSite);
+            startingSite.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    createStartingSiteOptionPane();
+                }
+            });
+
+
+            /// Path to save
+            JMenuItem pathtoSave = new JMenuItem("Select path to save sites to");
+            pathtoSave.setBackground(Color.black);
+            pathtoSave.setForeground(Color.white);
+
+            pathtoSave.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    createPathOptionPane();
+                }
+            });
+            menu.add(pathtoSave);
+        }
+
+        public void createPathOptionPane() {
+            String path;
+            JOptionPane setPathToSave = new JOptionPane();
+            setPathToSave.setVisible(true);
+            path = setPathToSave.showInputDialog(this, "Enter the path to save file to:");
+
+
+        }
+
+        public void createStartingSiteOptionPane() {
+            String startingSite;
+            JOptionPane setStartingSite = new JOptionPane();
+            setStartingSite.setVisible(true);
+            startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:");
+            /// COMMENT FOR GIT!!!!
+
         }
     }
 
