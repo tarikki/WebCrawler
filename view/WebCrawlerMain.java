@@ -458,7 +458,7 @@ public class WebCrawlerMain {
 
         /// Pop up warning for when all threads are being stopped
         public void closingThreads() {
-            JOptionPane closingThreads = new JOptionPane("Closing all running threads \n This should take around 5 seconds \n Please wait..", JOptionPane.WARNING_MESSAGE);
+            JOptionPane closingThreads = new JOptionPane("Closing all running threads\nThis should take around " +  generalTimeout / 1000 + " seconds\nPlease wait..", JOptionPane.WARNING_MESSAGE);
             final JDialog closingThreadsDialog = closingThreads.createDialog("Stopping all threads");
             closingThreadsDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
             new Thread(new Runnable() {
