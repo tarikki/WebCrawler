@@ -158,7 +158,10 @@ public class WebCrawlerMain {
         try {
             timer.cancel(); /// Cancel timer for refreshing table
             timer2.cancel(); /// Cancel timer for refreshing stats
+            statisticsPanel.closingThreads(); ///// DISPLAY POP UP MESSAGE AND CLOSE IT AFTER THREADS ARE SHUTDOWN
             executor.awaitTermination(5, TimeUnit.SECONDS);
+
+
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -445,8 +448,29 @@ public class WebCrawlerMain {
             JOptionPane confirmData = new JOptionPane();
             confirmData.setVisible(true);
             confirmData.showMessageDialog(this, "Data saved successfully!");
+
         }
 
+        /// Pop up warning for when all threads are being stopped
+        public void closingThreads()
+        {
+            JOptionPane closingThreads = new JOptionPane("Closing all running threads \n This should take around 5 seconds \n Please wait..", JOptionPane.WARNING_MESSAGE);
+            final JDialog closingThreadsDialog = closingThreads.createDialog("Stopping all threads");
+            closingThreadsDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(6000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    closingThreadsDialog.setVisible(false);
+                    closingThreadsDialog.dispose();
+                }
+            }).start();
+            closingThreadsDialog.setVisible(true);
+        }
         /// ScrollPane to store the table
         public void createScrollPanePanel() {
             /// New panel for holding scrollpane so we can position things better
