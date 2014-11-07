@@ -32,9 +32,10 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class WebCrawlerMain {
+    public static ConfigUtil config = new ConfigUtil();
     private static ExecutorService executor = Executors.newFixedThreadPool(100); // Here, define some nice way of using a thread pool
-    private static Graph internetModel = new Graph();
-    private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
+    private static Graph internetModel = new Graph(config);
+    private static DatabaseThread databaseThread = new DatabaseThread(internetModel, config);
 
     //// Changed value of these so we have the same size UI regardless of user's screen.
     public static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
@@ -52,19 +53,18 @@ public class WebCrawlerMain {
     private java.util.Timer timer = new java.util.Timer();
     private java.util.Timer timer2 = new java.util.Timer();
     private final StatisticsPanel statisticsPanel = new StatisticsPanel();
-    public ConfigUtil config;
+
 
 
     public static void main(String[] args) {
         new WebCrawlerMain();
     }
 
-    public void startYourEngines() {
-        config = new ConfigUtil();
+    public void startYourEngines(){
     }
 
     public WebCrawlerMain() {
-        startYourEngines();
+//        startYourEngines();
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -126,7 +126,7 @@ public class WebCrawlerMain {
         boolean result = false;
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(model.Constants.WORK_AT_HAND_FILENAME));
+            reader = new BufferedReader(new FileReader(config.getWORK_AT_HAND_FILENAME()));
             Set<String> cleaning = new HashSet<String>();
             String numberOfNodes = reader.readLine();
             int maxToRead = Integer.parseInt(numberOfNodes);
@@ -271,8 +271,7 @@ public class WebCrawlerMain {
             JOptionPane setPathToSave = new JOptionPane();
             setPathToSave.setVisible(true);
             path = setPathToSave.showInputDialog(this, "Enter the path to save file to:", path);
-            System.out.println(path);
-            config.setDEFAULT_PATH(path);
+            if (path != null) config.setDEFAULT_PATH(path);
 
 
         }
@@ -282,7 +281,7 @@ public class WebCrawlerMain {
             JOptionPane setStartingSite = new JOptionPane();
             setStartingSite.setVisible(true);
             startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:", startingSite);
-            config.setDEFAULT_START(startingSite);
+            if (startingSite!= null) config.setDEFAULT_START(startingSite);
 
         }
 
@@ -292,7 +291,7 @@ public class WebCrawlerMain {
             JOptionPane setStartingThreads = new JOptionPane();
             setStartingThreads.setVisible(true);
             startingThreads = setStartingThreads.showInputDialog(this, "Enter number of threads:", startingThreads);
-            config.setMAX_THREADS(Integer.parseInt(startingThreads));
+            if (startingThreads != null) config.setMAX_THREADS(Integer.parseInt(startingThreads));
         }
     }
 

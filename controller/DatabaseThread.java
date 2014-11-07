@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import model.Graph;
 import model.Vertex;
+import util.ConfigUtil;
 
 /**
  * This class will just wait in the background. When it wakes up - once every hour - 
@@ -20,9 +21,11 @@ import model.Vertex;
 
 public class DatabaseThread {
 	private ArrayList<String> workAtHand = new ArrayList<String>();
+	private ConfigUtil config;
 	
-	public DatabaseThread(Graph internetModel) {
+	public DatabaseThread(Graph internetModel, ConfigUtil config) {
 		// Implement constructor
+		this.config = config;
 	}
 	
 	public synchronized void storeWorkAtHand(Vertex source) {
@@ -30,7 +33,7 @@ public class DatabaseThread {
 	}
 	
 	public synchronized void writeAllWorkAtHand() throws FileNotFoundException, UnsupportedEncodingException {
-		PrintWriter writer = new PrintWriter(model.Constants.WORK_AT_HAND_FILENAME, "UTF-8");
+		PrintWriter writer = new PrintWriter(config.getWORK_AT_HAND_FILENAME(), "UTF-8");
 		// First write all vertices
 		writer.println(workAtHand.size());
 		for (String aNode: workAtHand) {

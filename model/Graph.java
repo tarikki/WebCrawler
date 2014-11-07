@@ -1,5 +1,6 @@
 package model;
 
+import util.ConfigUtil;
 import util.StatisticsCallback;
 
 import java.io.*;
@@ -14,11 +15,13 @@ public class Graph implements StatisticsCallback {
     private Vertex topVertex = null; // The vertex having the most links to it
     private List<Vertex> showingList = new ArrayList<Vertex>();
     private SortedSet<Vertex> sinceLastView;
+    private ConfigUtil config;
 
-    public Graph() {
+    public Graph(ConfigUtil configUtil) {
         vertices = new TreeSet<Vertex>();
         edges = new HashSet<Edge>();
         sinceLastView = new TreeSet<Vertex>();
+        this.config = configUtil;
     }
 
     public SortedSet<Vertex> getVertices() {
@@ -122,7 +125,7 @@ public class Graph implements StatisticsCallback {
     }
 
     public synchronized void writeGraph() throws FileNotFoundException, UnsupportedEncodingException {
-        PrintWriter writer = new PrintWriter(model.Constants.VERTICES_FILENAME, "UTF-8");
+        PrintWriter writer = new PrintWriter(config.getVERTICES_FILENAME(), "UTF-8");
         // First write all vertices
         writer.println(vertices.size());
         for (Vertex aVertex : vertices) {
@@ -131,7 +134,7 @@ public class Graph implements StatisticsCallback {
         writer.close();
 
         // then write all edges
-        writer = new PrintWriter(model.Constants.EDGES_FILENAME, "UTF-8");
+        writer = new PrintWriter(config.getEDGES_FILENAME(), "UTF-8");
         writer.println(edges.size());
         for (Edge anEdge : edges) {
             writer.println(anEdge.getStartVertex());
@@ -143,7 +146,7 @@ public class Graph implements StatisticsCallback {
     public void readGraph() throws IOException {
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(model.Constants.VERTICES_FILENAME));
+            reader = new BufferedReader(new FileReader(config.getVERTICES_FILENAME()));
             // First read all vertices
             String numberOfVertices = reader.readLine();
             int maxToRead = Integer.parseInt(numberOfVertices);
@@ -155,7 +158,7 @@ public class Graph implements StatisticsCallback {
             reader.close();
 
             // then read all edges
-            reader = new BufferedReader(new FileReader(model.Constants.EDGES_FILENAME));
+            reader = new BufferedReader(new FileReader(config.getVERTICES_FILENAME()));
             String numberOfEdges = reader.readLine();
             maxToRead = Integer.parseInt(numberOfEdges);
             for (int i = 0; i < maxToRead; i++) {

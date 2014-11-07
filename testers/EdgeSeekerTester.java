@@ -4,6 +4,7 @@ import controller.DatabaseThread;
 import controller.EdgeSeeker;
 import model.Graph;
 import model.Vertex;
+import util.ConfigUtil;
 import util.MemoryUtil;
 import util.VertexInvalidException;
 import util.VertexUnreachableException;
@@ -20,9 +21,10 @@ import java.util.concurrent.Executors;
  * Created by extradikke on 4-11-14.
  */
 public class EdgeSeekerTester {
+    private static ConfigUtil config = new ConfigUtil();
     private static ExecutorService executor = Executors.newFixedThreadPool(50); // Here, define some nice way of using a thread pool
-    private static Graph internetModel = new Graph();
-    private static DatabaseThread databaseThread = new DatabaseThread(internetModel);
+    private static Graph internetModel = new Graph(config);
+    private static DatabaseThread databaseThread = new DatabaseThread(internetModel, config);
 
     private static Timer timer = new Timer();
 
