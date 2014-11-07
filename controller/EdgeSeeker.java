@@ -89,7 +89,7 @@ public class EdgeSeeker implements Runnable {
 
                                     EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
                                     alreadyUnderExamination.add(newVertex);
-
+                                    System.out.println(alreadyUnderExamination.size());
                                     //Executor still not shutdown? Submit job!
                                     if (!executor.isShutdown()) {
                                         executor.execute(edgeSeeker);

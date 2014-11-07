@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -33,7 +34,9 @@ public class DatabaseThread {
 	}
 	
 	public synchronized void writeAllWorkAtHand() throws FileNotFoundException, UnsupportedEncodingException {
-		PrintWriter writer = new PrintWriter(config.getWORK_AT_HAND_FILENAME(), "UTF-8");
+		File file = new File(config.getWORK_AT_HAND_FILENAME());
+		file.delete();
+		PrintWriter writer = new PrintWriter(file, "UTF-8");
 		// First write all vertices
 		writer.println(workAtHand.size());
 		for (String aNode: workAtHand) {
