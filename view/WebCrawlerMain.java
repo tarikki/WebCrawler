@@ -91,7 +91,7 @@ public class WebCrawlerMain {
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
-        Vertex startVertex = new Vertex("http://www.reddit.com/");
+        Vertex startVertex = new Vertex("http://www.aamulehti.fi/");
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
         executor.execute(edgeSeeker);
@@ -136,8 +136,8 @@ public class WebCrawlerMain {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        databaseThread.writeAllWorkAtHand();
-        System.exit(0);
+
+
 //		internetModel.writeGraph();
 //		databaseThread.writeAllWorkAtHand();
 
@@ -351,14 +351,15 @@ public class WebCrawlerMain {
             buttonPanel.setLayout(new FlowLayout());
             buttonPanel.setVisible(true);
 
-            // Add a refresh button. Make sure it calls refresh.
 
-            ButtonUtils.addButton(buttonPanel, "Refresh", new ActionListener() {
+            /// Start button
+            ButtonUtils.addButton(buttonPanel, "Start", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     refresh();
                 }
             });
+
             // Add a stop button. It should stop crawling, then exit the application
             ButtonUtils.addButton(buttonPanel, "Stop", new ActionListener() {
                 @Override
@@ -374,12 +375,46 @@ public class WebCrawlerMain {
                 }
             });
 
-            ButtonUtils.addButton(buttonPanel, "Start", new ActionListener() {
+            // Add a refresh button. Make sure it calls refresh.
+
+            ButtonUtils.addButton(buttonPanel, "Refresh", new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     refresh();
                 }
             });
+
+            // Exit button
+            ButtonUtils.addButton(buttonPanel, "Exit", new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.exit(1);
+                }
+            });
+
+            /// Save data button
+            ButtonUtils.addButton(buttonPanel, "Save data", new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        databaseThread.writeAllWorkAtHand();
+                        dataConfirmed();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    } catch (UnsupportedEncodingException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            });
+
+        }
+
+        public void dataConfirmed()
+        {
+
+            JOptionPane confirmData = new JOptionPane();
+            confirmData.setVisible(true);
+             confirmData.showMessageDialog(this, "Data saved successfully!");
         }
 
         /// ScrollPane to store the table
