@@ -56,14 +56,14 @@ public class WebCrawlerMain {
         new WebCrawlerMain();
     }
 
+    public void startYourEngines(){
+
+    }
+
     public WebCrawlerMain() {
-//        // Here, create a new Runnable to insert into the EventQueue
-//        // The Runnable should create the actual frame and set it to visible
-//        try {
-//            startCrawling();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
+
+
 
 
         EventQueue.invokeLater(new Runnable() {
