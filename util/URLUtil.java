@@ -173,7 +173,7 @@ public class URLUtil {
                     // tell the page what kind of encoding we're using
                     .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
                     // give it a timeout
-                    .timeout(10000)
+                    .timeout(8000)
                     // lie that we arrived here by googling, so the website might not find out that we're a bot
                     .referrer("http://www.google.com");
 

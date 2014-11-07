@@ -48,6 +48,7 @@ public class WebCrawlerMain {
     public String edgesNumber = "0";
     public String ratioNumber = "0";
     public String memUsage = "0";
+    private int generalTimeout = 8000;
     private JMenu menu;
     private JMenuBar menuBar;
     private java.util.Timer timer = new java.util.Timer();
@@ -55,12 +56,11 @@ public class WebCrawlerMain {
     private final StatisticsPanel statisticsPanel = new StatisticsPanel();
 
 
-
     public static void main(String[] args) {
         new WebCrawlerMain();
     }
 
-    public void startYourEngines(){
+    public void startYourEngines() {
         config = new ConfigUtil();
         internetModel = new Graph(config);
         databaseThread = new DatabaseThread(internetModel, config);
@@ -84,15 +84,17 @@ public class WebCrawlerMain {
 
 
     public void startCrawling() throws Exception {
+        executor = Executors.newFixedThreadPool(config.getMAX_THREADS());
         // Start the simple statistics viewer
-
+        internetModel.readGraph();
+        readWorkAtHand();
         // Read already existing data
 
 
         // If there's already work in the queue, read it and start it as well. Otherwise, use some default site
         // A nice one to use is as newspaper, for example http://www.trouw.nl
 
-        executor = Executors.newFixedThreadPool(config.getMAX_THREADS());
+
         Vertex startVertex = new Vertex(config.getDEFAULT_START());
         internetModel.addVertex(startVertex);
         EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, startVertex, executor, databaseThread);
@@ -138,7 +140,12 @@ public class WebCrawlerMain {
             }
             for (String name : cleaning) {
                 // Insert the stored job into the thread pool here
-            }
+                Vertex newVertex = new Vertex(name);
+
+                EdgeSeeker edgeSeeker = new EdgeSeeker(internetModel, newVertex, executor, databaseThread);
+                executor.execute(edgeSeeker);
+
+            } result = true;
         } catch (IOException e) {
             //  No sweat, just no work at hand. Return false
             result = false;
@@ -161,8 +168,7 @@ public class WebCrawlerMain {
             timer.cancel(); /// Cancel timer for refreshing table
             timer2.cancel(); /// Cancel timer for refreshing stats
             statisticsPanel.closingThreads(); ///// DISPLAY POP UP MESSAGE AND CLOSE IT AFTER THREADS ARE SHUTDOWN
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-
+            executor.awaitTermination(generalTimeout, TimeUnit.MILLISECONDS);
 
 
         } catch (InterruptedException e) {
@@ -283,13 +289,12 @@ public class WebCrawlerMain {
             JOptionPane setStartingSite = new JOptionPane();
             setStartingSite.setVisible(true);
             startingSite = setStartingSite.showInputDialog(this, "Enter the starting web site:", startingSite);
-            if (startingSite!= null) config.setDEFAULT_START(startingSite);
+            if (startingSite != null) config.setDEFAULT_START(startingSite);
 
         }
 
-        public void createStartingThreadsOptionPane()
-        {
-           String startingThreads = String.valueOf(config.getMAX_THREADS());
+        public void createStartingThreadsOptionPane() {
+            String startingThreads = String.valueOf(config.getMAX_THREADS());
             JOptionPane setStartingThreads = new JOptionPane();
             setStartingThreads.setVisible(true);
             startingThreads = setStartingThreads.showInputDialog(this, "Enter number of threads:", startingThreads);
@@ -430,6 +435,7 @@ public class WebCrawlerMain {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         databaseThread.writeAllWorkAtHand();
+                        internetModel.writeGraph();
                         dataConfirmed();
                     } catch (FileNotFoundException e1) {
                         e1.printStackTrace();
@@ -451,8 +457,7 @@ public class WebCrawlerMain {
         }
 
         /// Pop up warning for when all threads are being stopped
-        public void closingThreads()
-        {
+        public void closingThreads() {
             JOptionPane closingThreads = new JOptionPane("Closing all running threads \n This should take around 5 seconds \n Please wait..", JOptionPane.WARNING_MESSAGE);
             final JDialog closingThreadsDialog = closingThreads.createDialog("Stopping all threads");
             closingThreadsDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -460,7 +465,7 @@ public class WebCrawlerMain {
                 @Override
                 public void run() {
                     try {
-                        Thread.sleep(6000);
+                        Thread.sleep(generalTimeout);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -470,6 +475,7 @@ public class WebCrawlerMain {
             }).start();
             closingThreadsDialog.setVisible(true);
         }
+
         /// ScrollPane to store the table
         public void createScrollPanePanel() {
             /// New panel for holding scrollpane so we can position things better

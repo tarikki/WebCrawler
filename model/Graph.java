@@ -170,7 +170,7 @@ public class Graph implements StatisticsCallback {
         } catch (Exception e) {
             // No sweat. Just not a database yet.
         } finally {
-            reader.close();
+            if (reader!=null)reader.close();
         }
     }
 }

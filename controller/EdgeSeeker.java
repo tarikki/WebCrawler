@@ -116,4 +116,8 @@ public class EdgeSeeker implements Runnable {
             databaseThread.storeWorkAtHand(source);
         }
     }
+
+//    public static void setAlreadyUnderExamination(Vertex alreadyUnderExamination) {
+//        EdgeSeeker.alreadyUnderExamination.add(alreadyUnderExamination);
+//    }
 }
