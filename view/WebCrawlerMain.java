@@ -288,12 +288,11 @@ public class WebCrawlerMain {
 
         public void createStartingThreadsOptionPane()
         {
-           String startingThreads = config.getDEFAULT_START();
+           String startingThreads = String.valueOf(config.getMAX_THREADS());
             JOptionPane setStartingThreads = new JOptionPane();
             setStartingThreads.setVisible(true);
-            setStartingThreads.setValue("asdf");
-            startingThreads = setStartingThreads.showInputDialog(this, "Enter the starting web site:", startingThreads);
-            //config.setDEFAULT_START(setStartingThreads);
+            startingThreads = setStartingThreads.showInputDialog(this, "Enter number of threads:", startingThreads);
+            config.setMAX_THREADS(Integer.parseInt(startingThreads));
         }
     }
 
